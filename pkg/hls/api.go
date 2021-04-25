@@ -8,14 +8,8 @@ import (
 	"strconv"
 
 	"github.com/jwhittle933/streamline/pkg/hls/manifest"
+	"github.com/jwhittle933/streamline/pkg/hls/manifest/chunk"
 )
-
-type Chunk struct {
-	IsGrowing       bool
-	FileName        string
-	DurationSeconds float64
-	IsDisco         bool
-}
 
 type HLS struct {
 	manifestType          manifest.Manifest
@@ -25,13 +19,13 @@ type HLS struct {
 	slidingWindowSize     int
 	mseq                  int64
 	dseq                  int64
-	chunks                []Chunk
+	chunks                []chunk.Chunk
 	chunkListFileName     string
 	initChunkDataFileName string
 	isClosed              bool
 }
 
-func (h *HLS) AddChuck(c Chunk) error {
+func (h *HLS) AddChuck(c chunk.Chunk) error {
 	h.chunks = append(h.chunks, c)
 
 	if h.manifestType.String() == "LiveWindow" && len(h.chunks) > h.slidingWindowSize {
