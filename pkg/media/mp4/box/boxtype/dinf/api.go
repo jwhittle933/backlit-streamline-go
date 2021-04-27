@@ -4,11 +4,11 @@ const (
 	DINF string = "dinf"
 )
 
-// Dinf is ISOBMFF dinf box type
-type Dinf struct {
+// Box is ISOBMFF dinf box type
+type Box struct {
 	//
 }
 
-func (d Dinf) Type() string {
+func (Box) Type() string {
 	return DINF
 }

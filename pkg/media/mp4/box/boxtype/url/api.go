@@ -5,10 +5,10 @@ const (
 	SelfContained uint = 0x000001
 )
 
-type Url struct {
+type Box struct {
 	Location string
 }
 
-func (u Url) Type() string {
+func (Box) Type() string {
 	return URL
 }

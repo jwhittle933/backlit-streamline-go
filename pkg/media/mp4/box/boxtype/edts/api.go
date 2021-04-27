@@ -4,11 +4,11 @@ const (
 	EDTS string = "edts"
 )
 
-// Edts is ISOBMFF edts box type
-type Edts struct {
+// Box is ISOBMFF edts box type
+type Box struct {
 	//
 }
 
-func (Edts) Type() string {
+func (Box) Type() string {
 	return EDTS
 }

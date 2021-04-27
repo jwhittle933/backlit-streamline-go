@@ -4,11 +4,11 @@ const (
 	CO64 string = "co64"
 )
 
-type Co64 struct {
+type Box struct {
 	EntryCount  uint32
 	ChunkOffset []uint64
 }
 
-func (c Co64) Type() string {
+func (Box) Type() string {
 	return CO64
 }

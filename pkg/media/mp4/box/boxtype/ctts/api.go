@@ -4,7 +4,7 @@ const (
 	CTTS string = "ctts"
 )
 
-type Ctts struct {
+type Box struct {
 	EntryCount uint32
 	Entries    []Entry
 }
@@ -15,6 +15,6 @@ type Entry struct {
 	SampleOffsetV1 int32
 }
 
-func (c Ctts) Type() string {
+func (Box) Type() string {
 	return CTTS
 }

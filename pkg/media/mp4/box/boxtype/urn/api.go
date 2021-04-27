@@ -5,11 +5,11 @@ const (
 	SelfContained uint = 0x000001
 )
 
-type Urn struct {
+type Box struct {
 	Name     string
 	Location string
 }
 
-func (u Urn) Type() string {
+func (Box) Type() string {
 	return URN
 }

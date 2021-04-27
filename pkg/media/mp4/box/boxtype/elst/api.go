@@ -4,8 +4,8 @@ const (
 	ELST string = "elst"
 )
 
-// Elst is ISOBMFF elst box type
-type Elst struct {
+// Box is ISOBMFF elst box type
+type Box struct {
 	EntryCount uint32
 	Entries    []Entry
 }
@@ -19,6 +19,6 @@ type Entry struct {
 	MediaRateFraction int16
 }
 
-func (Elst) Type() string {
+func (Box) Type() string {
 	return ELST
 }

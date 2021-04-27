@@ -4,12 +4,12 @@ const (
 	BTRT string = "btrt"
 )
 
-type Btrt struct {
+type Box struct {
 	BufferSizeDB uint32
 	MaxBitrate   uint32
 	AvgBitrate   uint32
 }
 
-func (b Btrt) Type() string {
+func (Box) Type() string {
 	return BTRT
 }

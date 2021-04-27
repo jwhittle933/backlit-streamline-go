@@ -4,7 +4,7 @@ const (
 	CSLG string = "cslg"
 )
 
-type Cslg struct {
+type Box struct {
 	CompositionToDTSShiftV0        int32
 	LeastDecodeToDisplayDeltaV0    int32
 	GreatestDecodeToDisplayDeltaV0 int32
@@ -17,6 +17,6 @@ type Cslg struct {
 	CompositionEndTimeV1           int32
 }
 
-func (c Cslg) Type() string {
+func (Box) Type() string {
 	return CSLG
 }

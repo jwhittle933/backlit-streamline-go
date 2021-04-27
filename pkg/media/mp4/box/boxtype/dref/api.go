@@ -4,12 +4,12 @@ const (
 	DREF string = "dref"
 )
 
-// Dref is ISOBMFF dref box type
-type Dref struct {
+// Box is ISOBMFF dref box type
+type Box struct {
 	EntryCount uint32
 }
 
-func (d Dref) Type() string {
+func (Box) Type() string {
 	return DREF
 }
 
