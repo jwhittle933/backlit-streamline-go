@@ -8,6 +8,7 @@ import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/header"
 	"github.com/jwhittle933/streamline/pkg/result"
+	"io"
 )
 
 type MP4 struct {
@@ -17,12 +18,13 @@ type MP4 struct {
 	Boxes []box.Box
 }
 
-func New(src []byte) (*MP4, error) {
-	r := result.
-		NewSuccess(&MP4{raw: src}).
-		Next(withSize)
+func New(r io.ReadSeeker) (*MP4, error) {
+	buf := make([]byte, 4)
+	_, _ = r.Read(buf)
 
-	return r.Success.(*MP4), r.Error
+	res := result.NewSuccess(&MP4{raw: buf})
+
+	return res.Success.(*MP4), res.Error
 }
 
 func withSize(data interface{}) *result.Result {

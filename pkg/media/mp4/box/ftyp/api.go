@@ -15,6 +15,11 @@ func (Box) Type() string {
 	return FTYP
 }
 
+// Write satisfies the io.Writer interface
+func (b *Box) Write(src []byte) (int, error) {
+	return 0, nil
+}
+
 func (b *Box) AddCompatibleBrand(cb [4]byte) bool {
 	if !b.HasCompatibleBrand(cb) {
 		b.CompatibleBrands = append(b.CompatibleBrands, cb)

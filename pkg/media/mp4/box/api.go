@@ -1,6 +1,9 @@
 package box
 
+import "io"
+
 type Box interface {
+	io.Writer
 	Type() string
 	Version() uint8
 }
