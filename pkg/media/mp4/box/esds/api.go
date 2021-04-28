@@ -1,6 +1,6 @@
 package esds
 
-import "github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype/esds/descriptor"
+import "github.com/jwhittle933/streamline/pkg/media/mp4/box/esds/descriptor"
 
 const (
 	ESDS                       string = "esds"

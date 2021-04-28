@@ -1,13 +1,14 @@
-package stts
+package gnre
 
 const (
-	STTS string = "stts"
+	GNRE string = "gnre"
 )
 
 type Box struct {
-
+	//
 }
 
 func (Box) Type() string {
-	return STTS
+	return GNRE
 }
+

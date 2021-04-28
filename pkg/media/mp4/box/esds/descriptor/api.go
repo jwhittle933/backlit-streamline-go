@@ -1,8 +1,8 @@
 package descriptor
 
 import (
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype/esds/descriptor/decoder"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype/esds/descriptor/es"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/esds/descriptor/decoder"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/esds/descriptor/es"
 )
 
 const (

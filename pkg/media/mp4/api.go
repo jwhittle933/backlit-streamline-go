@@ -4,14 +4,14 @@ package mp4
 
 import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
-	header2 "github.com/jwhittle933/streamline/pkg/media/mp4/box/header"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/header"
 	"github.com/jwhittle933/streamline/pkg/result"
 )
 
 type MP4 struct {
 	raw   []byte
-	Size  header2.Sizer
-	Type  header2.Sizer
+	Size  header.Sizer
+	Type  header.Sizer
 	Boxes []box.Box
 }
 
@@ -25,7 +25,7 @@ func New(src []byte) (*MP4, error) {
 
 func withSize(data interface{}) *result.Result {
 	mp4 := data.(*MP4)
-	h, err := header2.New(mp4.raw)
+	h, err := header.New(mp4.raw)
 	if err != nil {
 		result.NewError(err)
 	}

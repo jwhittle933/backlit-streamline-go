@@ -10,23 +10,6 @@ type Boxed interface {
 
 type BoxType [4]byte
 
-const (
-	STTS string = "stts"
-	STYP string = "styp"
-	TENC string = "tenc"
-	TFDT string = "tfdt"
-	TFHD string = "tfhd"
-	TFRA string = "tfra"
-	TKHD string = "tkhd"
-	TRAF string = "traf"
-	TRAK string = "trak"
-	TREP string = "trep"
-	TREX string = "trex"
-	TRUN string = "trun"
-	VMHD string = "vmhd"
-	WAVE string = "wave"
-)
-
 func New(code string) BoxType {
 	if len(code) != 4 {
 		panic(fmt.Errorf("invalid box type id length [%s]", code))
