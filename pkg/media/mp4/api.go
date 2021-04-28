@@ -1,5 +1,7 @@
 // Package mp4 for MP4 parsing
 // See: https://dev.to/sunfishshogi/go-mp4-golang-library-and-cli-tool-for-mp4-52o1
+// See: https://openmp4file.com/format.html#:~:text=MP4%20structures%20are%20typically%20referred,below%20have%20precisely%204%20symbols.
+// See: https://www.ramugedia.com/mp4-container
 package mp4
 
 import (
@@ -35,6 +37,5 @@ func withSize(data interface{}) *result.Result {
 }
 
 func (mp4 *MP4) withType() *MP4 {
-	// boxtype starts with "ftype"
 	return mp4
 }
