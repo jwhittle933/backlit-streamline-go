@@ -2,6 +2,7 @@ package header
 
 import (
 	"fmt"
+	"io"
 )
 
 const (
@@ -18,23 +19,30 @@ type Sizer interface {
 	Raw() []byte
 }
 
-func New(src []byte) (Sizer, error) {
+func New(r io.ReadSeeker) (Sizer, error) {
 	// size is either [4]byte or [8]byte
 	// if size is 0x00000000, the box continues until EOF
-	if len(src) < MinSize {
-		return nil, headerSizeTooSmall
+
+	buf := make([]byte, 4)
+	_, err := r.Read(buf)
+	if err != nil {
+		return nil, err
 	}
 
-	if src[4] == 0x01 {
-		return Byte8([8]byte{
-			src[0], src[1], src[2], src[3],
-			src[4], src[5], src[6], src[7],
-		}), nil
+	if buf[3] == 0x01 {
+		//
 	}
 
-	return Byte4([4]byte{
-		src[0], src[1], src[2], src[3],
-	}), nil
+	//if src[4] == 0x01 {
+	//	return Byte8([8]byte{
+	//		src[0], src[1], src[2], src[3],
+	//		src[4], src[5], src[6], src[7],
+	//	}), nil
+	//}
+	//
+	//return Byte4([4]byte{
+	//	src[0], src[1], src[2], src[3],
+	//}), nil
 }
 
 type Byte4 [4]byte

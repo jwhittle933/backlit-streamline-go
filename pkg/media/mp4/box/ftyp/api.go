@@ -1,4 +1,8 @@
+// Package ftyp
+// See: http://www.ftyps.com/what.html#:~:text=It%20only%20pertains%20to%20MP4%20or%20newer%20QuickTime,QuickTime%20terminology%29%20or%20box%20type%20%28in%20MP4%20terminology%29.
 package ftyp
+
+import "io"
 
 const (
 	FTYP string = "ftyp"
@@ -9,6 +13,16 @@ type Box struct {
 	MajorBrand       [4]byte
 	MinorVersion     uint32
 	CompatibleBrands [][4]byte
+}
+
+func New(r io.ReadSeeker) Box {
+	buf := make([]byte, 4)
+	_, _ = r.Read(buf)
+
+	box := Box{}
+	copy(box.MajorBrand[:], buf)
+
+	return box
 }
 
 func (Box) Type() string {

@@ -2,10 +2,11 @@ package box
 
 import "io"
 
-type Box interface {
+type Boxed interface {
 	io.Writer
 	Type() string
 	Version() uint8
+	Children() []Boxed
 }
 
 type Info struct {
