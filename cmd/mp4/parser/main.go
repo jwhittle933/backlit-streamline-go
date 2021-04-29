@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -8,6 +10,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 )
 
 func main() {
@@ -58,60 +62,63 @@ func main() {
 		return
 	}
 
-	//buf := make([]byte, 8)
-	//_, err = file.Read(buf)
-	//exitOnError(err, 1)
-	//fmt.Println(buf)
-	//fmt.Println(string(buf))
-	//fmt.Println(hex.Dump(buf))
-	//
-	//fmt.Println("size:", buf[3])
-	//fmt.Println("type:", string(buf[4:]))
-	//dataBuf := make([]byte, buf[3])
-	//_, err = file.Read(dataBuf)
-	//exitOnError(err, 1)
-	//fmt.Println(dataBuf)
-	//fmt.Println(string(dataBuf))
-	//fmt.Println(hex.Dump(dataBuf))
+	fmt.Printf("\n")
+
+	bi, err := readBoxInfo(file)
+	exitOnError(err, 1)
+	fmt.Println("Offset:", bi.Offset)
+	fmt.Println("Type:", string(bi.Type[:]))
+	fmt.Println("Size:", bi.Size)
 
 	fmt.Printf("\n")
 
-	offset, name, data, _, err := chunk(file)
+	bi2, err := readBoxInfo(file)
 	exitOnError(err, 1)
-	fmt.Println("offset:", offset)
-	fmt.Println("name:", name)
-	fmt.Println("data:", data)
-	fmt.Println("Buffer length:", len(append(data, name...)))
-
-	fmt.Printf("\n")
-
-	offset, name, data, _, err = chunk(file)
-	exitOnError(err, 1)
-	fmt.Println("offset:", offset)
-	fmt.Println("name:", name)
-	fmt.Println("data:", data)
-	fmt.Println("Buffer length:", len(append(data, name...)))
+	fmt.Println("Offset:", bi.Offset)
+	fmt.Println("Type:", string(bi2.Type[:]))
+	fmt.Println("Size:", bi2.Size)
 }
 
-func chunk(r io.ReadSeeker) (int, string, []byte, bool, error) {
-	sizeAndName := buffer(8)
-	if _, err := r.Read(sizeAndName); err != nil {
-		return 0, "", nil, true, err
-	}
-	fmt.Println(sizeAndName)
+func readBoxInfo(r io.ReadSeeker) (*box.Info, error) {
+	off, _ := r.Seek(0, io.SeekCurrent)
 
-	size := int(sizeAndName[3])
-	data := buffer(size - len(sizeAndName))
-	if _, err := r.Read(data); err != nil {
-		return size, "", nil, true, err
+	bi := &box.Info{
+		Offset:     uint64(off),
+		HeaderSize: box.SmallHeader,
 	}
 
-	name := string(sizeAndName[4:])
-	return size, name, data[4:], false, nil
-}
+	buf := bytes.NewBuffer(make([]byte, 0, bi.HeaderSize))
+	if _, err := io.CopyN(buf, r, box.SmallHeader); err != nil {
+		return nil, err
+	}
 
-func buffer(size int) []byte {
-	return make([]byte, size)
+	data := buf.Bytes()
+	bi.Size = uint64(binary.BigEndian.Uint32(data))
+	bi.Type = [4]byte{data[4], data[5], data[6], data[7]}
+
+	if bi.Size == 0 {
+		off, _ = r.Seek(0, io.SeekEnd)
+		bi.Size = uint64(off) - bi.Offset
+		bi.ExtendToEOF = true
+		if _, err := bi.SeekPayload(r); err != nil {
+			return nil, err
+		}
+
+		return bi, nil
+	}
+
+	if bi.Size == 1 {
+		buf.Reset()
+		if _, err := io.CopyN(buf, r, box.LargeHeader-box.SmallHeader); err != nil {
+			return nil, err
+		}
+
+		bi.HeaderSize += box.LargeHeader - box.SmallHeader
+		bi.Size = binary.BigEndian.Uint64(buf.Bytes())
+		return bi, nil
+	}
+
+	return bi, nil
 }
 
 func exitOnError(err error, code int) {
