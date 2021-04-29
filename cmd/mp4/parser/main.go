@@ -78,6 +78,13 @@ func main() {
 	fmt.Println("Type (raw):", bi2.Type[:])
 	fmt.Println("Type:", string(bi2.Type[:]))
 	fmt.Println("Size:", bi2.Size)
+
+	bi3, err := m.ReadInfo()
+	exitOnError(err, 1)
+	fmt.Println("Offset:", bi3.Offset)
+	fmt.Println("Type (raw):", bi3.Type[:])
+	fmt.Println("Type:", string(bi3.Type[:]))
+	fmt.Println("Size:", bi3.Size)
 }
 
 func exitOnError(err error, code int) {
