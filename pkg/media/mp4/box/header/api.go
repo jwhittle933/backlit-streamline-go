@@ -43,6 +43,7 @@ func New(r io.ReadSeeker) (Sizer, error) {
 	//return Byte4([4]byte{
 	//	src[0], src[1], src[2], src[3],
 	//}), nil
+	return nil, nil
 }
 
 type Byte4 [4]byte
