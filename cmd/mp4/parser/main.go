@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"github.com/jwhittle933/streamline/pkg/media/mp4"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -47,44 +45,56 @@ func main() {
 
 	fmt.Printf("File Size: %dMB\n", info.Size()/1024)
 
-	if *dump {
-		src, err := ioutil.ReadAll(file)
-		if err != nil {
-			fmt.Printf("Could read file: %s\nExiting...\n", err.Error())
-			os.Exit(0)
-		}
-
-		fmt.Print(hex.Dump(src))
-		return
-	}
-
 	m, err := mp4.New(file)
 	exitOnError(err, 1)
 
-	fmt.Printf("\n")
-
-	ftyp, err := m.ReadInfo()
-	exitOnError(err, 1)
-	fmt.Println("Offset:", ftyp.Offset)
-	fmt.Println("Type (raw):", ftyp.Type[:])
-	fmt.Println("Type:", string(ftyp.Type[:]))
-	fmt.Println("Size:", ftyp.Size)
+	if *dump {
+		fmt.Println(m.Hex())
+		return
+	}
 
 	fmt.Printf("\n")
 
-	bi2, err := m.ReadInfo()
+	boxes, err := m.ReadAll()
 	exitOnError(err, 1)
-	fmt.Println("Offset:", bi2.Offset)
-	fmt.Println("Type (raw):", bi2.Type[:])
-	fmt.Println("Type:", string(bi2.Type[:]))
-	fmt.Println("Size:", bi2.Size)
+	for _, b := range boxes {
+		fmt.Println("Offset:", b.Offset)
+		fmt.Println("Type:", string(b.Type[:]))
+		fmt.Println("Size:", b.Size)
+		fmt.Println("Header Size:", b.HeaderSize)
+		fmt.Println("EOF:", b.ExtendToEOF)
+		fmt.Printf("\n")
+	}
 
-	bi3, err := m.ReadInfo()
-	exitOnError(err, 1)
-	fmt.Println("Offset:", bi3.Offset)
-	fmt.Println("Type (raw):", bi3.Type[:])
-	fmt.Println("Type:", string(bi3.Type[:]))
-	fmt.Println("Size:", bi3.Size)
+	//ftyp, err := m.ReadNext()
+	//exitOnError(err, 1)
+	//fmt.Println("Offset:", ftyp.Offset)
+	//fmt.Println("Type:", string(ftyp.Type[:]))
+	//fmt.Println("Size:", ftyp.Size)
+	//
+	//fmt.Printf("\n")
+	//
+	//bi2, err := m.ReadNext()
+	//exitOnError(err, 1)
+	//fmt.Println("Offset:", bi2.Offset)
+	//fmt.Println("Type:", string(bi2.Type[:]))
+	//fmt.Println("Size:", bi2.Size)
+	//
+	//fmt.Printf("\n")
+	//
+	//bi3, err := m.ReadNext()
+	//exitOnError(err, 1)
+	//fmt.Println("Offset:", bi3.Offset)
+	//fmt.Println("Type:", string(bi3.Type[:]))
+	//fmt.Println("Size:", bi3.Size)
+	//
+	//fmt.Printf("\n")
+	//
+	//bi4, err := m.ReadNext()
+	//exitOnError(err, 1)
+	//fmt.Println("Offset:", bi4.Offset)
+	//fmt.Println("Type:", string(bi4.Type[:]))
+	//fmt.Println("Size:", bi4.Size)
 }
 
 func exitOnError(err error, code int) {
