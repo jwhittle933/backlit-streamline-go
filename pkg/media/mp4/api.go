@@ -2,25 +2,25 @@
 // See: https://dev.to/sunfishshogi/go-mp4-golang-library-and-cli-tool-for-mp4-52o1
 // See: https://openmp4file.com/format.html#:~:text=MP4%20structures%20are%20typically%20referred,below%20have%20precisely%204%20symbols.
 // See: https://www.ramugedia.com/mp4-container
+// See: https://bitmovin.com/fun-with-container-formats-2/
+// See https://www.w3.org/2013/12/byte-stream-format-registry/isobmff-byte-stream-format.html
 package mp4
 
 import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
 	"io"
 	"io/ioutil"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/header"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
 	"github.com/jwhittle933/streamline/pkg/result"
 )
 
 type MP4 struct {
 	r     io.ReadSeeker
 	Size  uint64
-	Type  header.Sizer
 	Boxes []box.Boxed
 }
 
@@ -57,7 +57,7 @@ func (mp4 *MP4) Hex() string {
 	return hex.Dump(src)
 }
 
-func (mp4 *MP4) ReadNext() (*box.Info, error) {
+func (mp4 *MP4) ReadNext() (*box.Box, error) {
 	off, _ := mp4.Offset()
 
 	bi := &box.Info{
@@ -82,7 +82,7 @@ func (mp4 *MP4) ReadNext() (*box.Info, error) {
 			return nil, err
 		}
 
-		return bi, nil
+		return box.New(bi), nil
 	}
 
 	if bi.Size == 1 {
@@ -93,17 +93,18 @@ func (mp4 *MP4) ReadNext() (*box.Info, error) {
 
 		bi.HeaderSize += box.LargeHeader - box.SmallHeader
 		bi.Size = binary.BigEndian.Uint64(buf.Bytes())
-		return bi, nil
+
+		return box.New(bi), nil
 	}
 
 	_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
-	return bi, err
+	return box.New(bi), err
 }
 
-func (mp4 *MP4) ReadAll() ([]*box.Info, error) {
-	boxes := make([]*box.Info, 0)
+func (mp4 *MP4) ReadAll() ([]*box.Box, error) {
+	boxes := make([]*box.Box, 0)
 
-	var b *box.Info
+	var b *box.Box
 	var err error
 
 	for {

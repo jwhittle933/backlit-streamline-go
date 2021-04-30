@@ -2,11 +2,14 @@ package box
 
 import (
 	"fmt"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov"
 	"io"
 
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/ftyp"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/mdat"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moof"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/styp"
 )
 
 const (
@@ -16,7 +19,11 @@ const (
 
 var BoxRegistry = map[string]Boxed{
 	"ftyp": ftyp.Box{},
+	"mdat": mdat.Box{},
 	"moov": moov.Box{},
+	"moof": moof.Box{},
+	"styp": styp.Box{},
+	"free": mdat.Box{},
 }
 
 type Boxed interface {
@@ -27,11 +34,12 @@ type Boxed interface {
 }
 
 type Box struct {
+	Boxed
 	Info *Info
 }
 
-func New() *Box {
-	return &Box{}
+func New(i *Info) *Box {
+	return &Box{Info: i}
 }
 
 type Info struct {
@@ -48,7 +56,7 @@ func (i *Info) SeekPayload(s io.Seeker) (int64, error) {
 
 func (i *Info) String() string {
 	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d]",
+		"[%s] hex=%s, offset=%d, size=%d, header=%d",
 		string(i.Type[:]),
 		i.Type.String(),
 		i.Offset,

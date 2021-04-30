@@ -11,6 +11,8 @@ const (
 )
 
 // Box is ISOBMFF ftyp box type
+// If the segment type box (styp) is not present
+// the segment must conform to the brands listed in ftyp
 type Box struct {
 	MajorBrand       [4]byte
 	MinorVersion     uint32

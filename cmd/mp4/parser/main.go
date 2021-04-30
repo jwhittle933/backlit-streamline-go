@@ -37,15 +37,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("File Name:", file.Name())
-	info, err := file.Stat()
-	if err != nil {
-		fmt.Printf("Could read file info: %s\nExiting...\n", err.Error())
-		os.Exit(0)
-	}
-
-	fmt.Printf("File Size: %dMB\n", info.Size()/1024)
-
 	m, err := mp4.New(file)
 	exitOnError(err, 1)
 
@@ -58,8 +49,9 @@ func main() {
 
 	boxes, err := m.ReadAll()
 	exitOnError(err, 1)
+	fmt.Printf("[mp4] size=%d\n", m.Size)
 	for _, b := range boxes {
-		fmt.Println(b.String())
+		fmt.Println(b.Info.String())
 	}
 }
 
