@@ -8,11 +8,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
+	"io"
+	"io/ioutil"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/header"
 	"github.com/jwhittle933/streamline/pkg/result"
-	"io"
-	"io/ioutil"
 )
 
 type MP4 struct {
@@ -26,15 +28,6 @@ func New(r io.ReadSeeker) (*MP4, error) {
 	res := result.NewSuccess(&MP4{r: r, Size: 0})
 
 	return res.Success.(*MP4), res.Error
-}
-
-func withSize(data interface{}) *result.Result {
-	mp4 := data.(*MP4)
-	return result.NewSuccess(mp4)
-}
-
-func (mp4 *MP4) withType() *MP4 {
-	return mp4
 }
 
 func (mp4 *MP4) Offset() (int64, error) {
@@ -79,7 +72,7 @@ func (mp4 *MP4) ReadNext() (*box.Info, error) {
 
 	data := buf.Bytes()
 	bi.Size = uint64(binary.BigEndian.Uint32(data))
-	bi.Type = [4]byte{data[4], data[5], data[6], data[7]}
+	bi.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
 
 	if bi.Size == 0 {
 		off, _ = mp4.Seek(0, io.SeekEnd)

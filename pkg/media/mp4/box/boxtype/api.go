@@ -10,11 +10,7 @@ type Boxed interface {
 
 type BoxType [4]byte
 
-func New(code string) BoxType {
-	if len(code) != 4 {
-		panic(fmt.Errorf("invalid box type id length [%s]", code))
-	}
-
+func New(code [4]byte) BoxType {
 	return BoxType{code[0], code[1], code[2], code[3]}
 }
 

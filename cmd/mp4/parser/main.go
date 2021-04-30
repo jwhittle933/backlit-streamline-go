@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jwhittle933/streamline/pkg/media/mp4"
 	"os"
 	"path/filepath"
+
+	"github.com/jwhittle933/streamline/pkg/media/mp4"
 )
 
 func main() {
@@ -58,43 +59,8 @@ func main() {
 	boxes, err := m.ReadAll()
 	exitOnError(err, 1)
 	for _, b := range boxes {
-		fmt.Println("Offset:", b.Offset)
-		fmt.Println("Type:", string(b.Type[:]))
-		fmt.Println("Size:", b.Size)
-		fmt.Println("Header Size:", b.HeaderSize)
-		fmt.Println("EOF:", b.ExtendToEOF)
-		fmt.Printf("\n")
+		fmt.Println(b.String())
 	}
-
-	//ftyp, err := m.ReadNext()
-	//exitOnError(err, 1)
-	//fmt.Println("Offset:", ftyp.Offset)
-	//fmt.Println("Type:", string(ftyp.Type[:]))
-	//fmt.Println("Size:", ftyp.Size)
-	//
-	//fmt.Printf("\n")
-	//
-	//bi2, err := m.ReadNext()
-	//exitOnError(err, 1)
-	//fmt.Println("Offset:", bi2.Offset)
-	//fmt.Println("Type:", string(bi2.Type[:]))
-	//fmt.Println("Size:", bi2.Size)
-	//
-	//fmt.Printf("\n")
-	//
-	//bi3, err := m.ReadNext()
-	//exitOnError(err, 1)
-	//fmt.Println("Offset:", bi3.Offset)
-	//fmt.Println("Type:", string(bi3.Type[:]))
-	//fmt.Println("Size:", bi3.Size)
-	//
-	//fmt.Printf("\n")
-	//
-	//bi4, err := m.ReadNext()
-	//exitOnError(err, 1)
-	//fmt.Println("Offset:", bi4.Offset)
-	//fmt.Println("Type:", string(bi4.Type[:]))
-	//fmt.Println("Size:", bi4.Size)
 }
 
 func exitOnError(err error, code int) {

@@ -2,7 +2,9 @@
 // See: http://www.ftyps.com/what.html#:~:text=It%20only%20pertains%20to%20MP4%20or%20newer%20QuickTime,QuickTime%20terminology%29%20or%20box%20type%20%28in%20MP4%20terminology%29.
 package ftyp
 
-import "io"
+import (
+	"io"
+)
 
 const (
 	FTYP string = "ftyp"
