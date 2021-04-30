@@ -12,13 +12,18 @@ const (
 	LargeHeader = 16
 )
 
+type Typed interface {
+	Type() string
+}
+
+type Informed interface {
+	Info() *Info
+}
 
 type Boxed interface {
-	//io.Writer
-	Type() string
-	Info() *Info
-	//Version() uint8
-	//Children() []Boxed
+	io.Writer
+	Typed
+	Informed
 }
 
 type Box struct {

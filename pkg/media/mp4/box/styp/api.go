@@ -24,3 +24,8 @@ func (Box) Type() string {
 func (b *Box) Info() *box.Info {
 	return b.BoxInfo
 }
+
+// Write satisfies the io.Writer interface
+func (b *Box) Write(src []byte) (int, error) {
+	return len(src), nil
+}

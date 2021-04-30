@@ -13,13 +13,17 @@ type Box struct {
 }
 
 func New(i *box.Info) box.Boxed {
-	return Box{BoxInfo: i}
+	return &Box{BoxInfo: i}
 }
 
 func (Box) Type() string {
 	return MDAT
 }
 
-func (b Box) Info() *box.Info {
+func (b *Box) Info() *box.Info {
 	return b.BoxInfo
+}
+
+func (b *Box) Write(src []byte) (int, error) {
+	return len(src), nil
 }

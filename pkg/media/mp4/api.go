@@ -10,12 +10,12 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
 	"io"
 	"io/ioutil"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/ftyp"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/mdat"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moof"
@@ -75,6 +75,8 @@ func (mp4 *MP4) Hex() string {
 	return hex.Dump(src)
 }
 
+// ReadNext reads and returns the next Box from
+// the mp4's underlying reader
 func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	off, _ := mp4.Offset()
 
@@ -98,6 +100,8 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 		boxFactory = unknown.New
 	}
 
+	b := boxFactory(bi)
+
 	if bi.Size == 0 {
 		off, _ = mp4.Seek(0, io.SeekEnd)
 		bi.Size = uint64(off) - bi.Offset
@@ -106,7 +110,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 			return nil, err
 		}
 
-		return boxFactory(bi), nil
+		return b, nil
 	}
 
 	if bi.Size == 1 {
@@ -118,13 +122,20 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 		bi.HeaderSize += box.LargeHeader - box.SmallHeader
 		bi.Size = binary.BigEndian.Uint64(buf.Bytes())
 
-		return boxFactory(bi), nil
+		return b, nil
 	}
 
-	_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
-	return boxFactory(bi), err
+	if _, err := io.CopyN(b, mp4, int64(bi.Size)); err != nil {
+		return nil, err
+	}
+	//_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
+	return b, nil
 }
 
+// ReadAll iteratively reads every top-level Box
+// from the mp4's underlying reader, and passes
+// reading responsibility for each box's children
+// to the Box
 func (mp4 *MP4) ReadAll() ([]box.Boxed, error) {
 	boxes := make([]box.Boxed, 0)
 

@@ -21,7 +21,7 @@ type Box struct {
 }
 
 func New(i *box.Info) box.Boxed {
-	return Box{BoxInfo: i}
+	return &Box{BoxInfo: i}
 }
 
 func (Box) Type() string {
@@ -34,7 +34,7 @@ func (b Box) Info() *box.Info {
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
-	return 0, nil
+	return len(src), nil
 }
 
 func (b *Box) AddCompatibleBrand(cb [4]byte) bool {
