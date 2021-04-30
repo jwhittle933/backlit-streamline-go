@@ -10,13 +10,31 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
 	"io"
 	"io/ioutil"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/ftyp"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/mdat"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moof"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/styp"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/unknown"
 	"github.com/jwhittle933/streamline/pkg/result"
 )
+
+type BoxFactory func(*box.Info) box.Boxed
+
+var mp4Children = map[string]BoxFactory{
+	ftyp.FTYP: ftyp.New,
+	mdat.MDAT: mdat.New,
+	moov.MOOV: moov.New,
+	moof.MOOF: moof.New,
+	styp.STYP: styp.New,
+	free.FREE: free.New,
+}
 
 type MP4 struct {
 	r     io.ReadSeeker
@@ -57,7 +75,7 @@ func (mp4 *MP4) Hex() string {
 	return hex.Dump(src)
 }
 
-func (mp4 *MP4) ReadNext() (*box.Box, error) {
+func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	off, _ := mp4.Offset()
 
 	bi := &box.Info{
@@ -74,6 +92,12 @@ func (mp4 *MP4) ReadNext() (*box.Box, error) {
 	bi.Size = uint64(binary.BigEndian.Uint32(data))
 	bi.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
 
+	var boxFactory BoxFactory
+	var found bool
+	if boxFactory, found = mp4Children[bi.Type.String()]; !found {
+		boxFactory = unknown.New
+	}
+
 	if bi.Size == 0 {
 		off, _ = mp4.Seek(0, io.SeekEnd)
 		bi.Size = uint64(off) - bi.Offset
@@ -82,7 +106,7 @@ func (mp4 *MP4) ReadNext() (*box.Box, error) {
 			return nil, err
 		}
 
-		return box.New(bi), nil
+		return boxFactory(bi), nil
 	}
 
 	if bi.Size == 1 {
@@ -94,17 +118,17 @@ func (mp4 *MP4) ReadNext() (*box.Box, error) {
 		bi.HeaderSize += box.LargeHeader - box.SmallHeader
 		bi.Size = binary.BigEndian.Uint64(buf.Bytes())
 
-		return box.New(bi), nil
+		return boxFactory(bi), nil
 	}
 
 	_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
-	return box.New(bi), err
+	return boxFactory(bi), err
 }
 
-func (mp4 *MP4) ReadAll() ([]*box.Box, error) {
-	boxes := make([]*box.Box, 0)
+func (mp4 *MP4) ReadAll() ([]box.Boxed, error) {
+	boxes := make([]box.Boxed, 0)
 
-	var b *box.Box
+	var b box.Boxed
 	var err error
 
 	for {

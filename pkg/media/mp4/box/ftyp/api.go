@@ -3,7 +3,7 @@
 package ftyp
 
 import (
-	"io"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 )
 
 const (
@@ -14,23 +14,22 @@ const (
 // If the segment type box (styp) is not present
 // the segment must conform to the brands listed in ftyp
 type Box struct {
+	BoxInfo          *box.Info
 	MajorBrand       [4]byte
 	MinorVersion     uint32
 	CompatibleBrands [][4]byte
 }
 
-func New(r io.ReadSeeker) Box {
-	buf := make([]byte, 4)
-	_, _ = r.Read(buf)
-
-	box := Box{}
-	copy(box.MajorBrand[:], buf)
-
-	return box
+func New(i *box.Info) box.Boxed {
+	return Box{BoxInfo: i}
 }
 
 func (Box) Type() string {
 	return FTYP
+}
+
+func (b Box) Info() *box.Info {
+	return b.BoxInfo
 }
 
 // Write satisfies the io.Writer interface

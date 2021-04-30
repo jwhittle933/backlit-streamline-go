@@ -1,15 +1,15 @@
-package mdat
+package unknown
 
-import "github.com/jwhittle933/streamline/pkg/media/mp4/box"
-
-const (
-	MDAT string = "mdat"
+import (
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 )
 
-// Box is ISOBMFF mdat box type
+const (
+	UNKNOWN = "unkn"
+)
+
 type Box struct {
 	BoxInfo *box.Info
-	Data    []byte
 }
 
 func New(i *box.Info) box.Boxed {
@@ -17,7 +17,7 @@ func New(i *box.Info) box.Boxed {
 }
 
 func (Box) Type() string {
-	return MDAT
+	return UNKNOWN
 }
 
 func (b Box) Info() *box.Info {

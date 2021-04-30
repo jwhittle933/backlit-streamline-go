@@ -15,6 +15,10 @@ func New(code [4]byte) BoxType {
 }
 
 func (b BoxType) String() string {
+	return string(b[:])
+}
+
+func (b BoxType) HexString() string {
 	return fmt.Sprintf("0x%02x%02x%02x%02x", b[0], b[1], b[2], b[3])
 }
 func isASCII(c byte) bool {
