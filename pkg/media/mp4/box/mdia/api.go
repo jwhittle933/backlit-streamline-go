@@ -1,3 +1,4 @@
+// Package mdia for ISO BMFF Media box
 package mdia
 
 const (

@@ -1,3 +1,7 @@
+// Package mdat for ISO BMFF Media Data box
+// "The media data box (‘mdat’) is merely one possible location [for the data],
+// and looked at by itself, it can only be considered an un‐ordered bag of
+// un‐identifiable bits."
 package mdat
 
 import (

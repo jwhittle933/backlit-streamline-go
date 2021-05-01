@@ -15,6 +15,7 @@ import (
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/ftyp"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/mdat"
@@ -25,9 +26,7 @@ import (
 	"github.com/jwhittle933/streamline/pkg/result"
 )
 
-type BoxFactory func(*box.Info) box.Boxed
-
-var mp4Children = map[string]BoxFactory{
+var mp4Children = children.Registry{
 	ftyp.FTYP: ftyp.New,
 	mdat.MDAT: mdat.New,
 	moov.MOOV: moov.New,
@@ -95,7 +94,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	bi.Size = uint64(binary.BigEndian.Uint32(data))
 	bi.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
 
-	var boxFactory BoxFactory
+	var boxFactory children.BoxFactory
 	var found bool
 	if boxFactory, found = mp4Children[bi.Type.String()]; !found {
 		boxFactory = unknown.New

@@ -1,3 +1,4 @@
+// Package tkhd for ISO BMFF Track Header
 package tkhd
 
 const (

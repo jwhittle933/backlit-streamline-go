@@ -1,10 +1,17 @@
+// Package mvhd for ISO BMFF Movie Header
 package mvhd
+
+import (
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
+)
 
 const (
 	MVHD string = "mvhd"
 )
 
 type Box struct {
+	base.Box
 	CreationTimeV0     uint32
 	ModificationTimeV0 uint32
 	CreationTimeV1     uint64
@@ -23,8 +30,24 @@ type Box struct {
 
 type Rate int32
 
+func New(i *box.Info) box.Boxed {
+	return &Box{
+		base.Box{i},
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		[2]uint32{}, [9]int32{}, [6]int32{}, 0,
+	}
+}
+
 func (Box) Type() string {
 	return MVHD
+}
+
+func (b *Box) Write(src []byte) (int, error) {
+	return len(src), nil
+}
+
+func (b *Box) String() string {
+	return ""
 }
 
 func (r Rate) Float64() float64 {

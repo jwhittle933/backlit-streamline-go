@@ -4,11 +4,17 @@ import (
 	"fmt"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/mvhd"
 )
 
 const (
 	MOOV string = "moov"
 )
+
+var moovChildren = children.Registry{
+	mvhd.MVHD: mvhd.New,
+}
 
 type Box struct {
 	base.Box
@@ -35,5 +41,6 @@ func (b Box) String() string {
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	// iteratively parse children
 	return len(src), nil
 }

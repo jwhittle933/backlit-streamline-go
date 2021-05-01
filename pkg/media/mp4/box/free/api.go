@@ -11,10 +11,15 @@ const (
 	FREE string = "free"
 )
 
+var (
+	empty []byte = []byte("empty")
+)
+
+
 // Box satisfies the box.Boxed interface
 type Box struct {
 	base.Box
-	Data []uint8
+	Data []byte
 }
 
 // New satisfies the mp4.BoxFactory function
@@ -29,16 +34,18 @@ func (Box) Type() string {
 
 func (b Box) String() string {
 	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
+		"[%s] hex=%s, offset=%d, size=%d, header=%d, data=%s",
 		string(b.BoxInfo.Type.String()),
 		b.BoxInfo.Type.HexString(),
 		b.BoxInfo.Offset,
 		b.BoxInfo.Size,
 		b.BoxInfo.HeaderSize,
+		b.Data,
 	)
 }
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	b.Data = src
 	return len(src), nil
 }

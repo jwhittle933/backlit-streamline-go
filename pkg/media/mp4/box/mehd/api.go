@@ -1,3 +1,4 @@
+// Package mehd for ISO BMFF Movie Extends Header
 package mehd
 
 const (

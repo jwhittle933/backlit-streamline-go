@@ -1,3 +1,4 @@
+// Package trak for ISO BMFF Track box
 package trak
 
 const (
