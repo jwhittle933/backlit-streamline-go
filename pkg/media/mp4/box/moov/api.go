@@ -1,25 +1,36 @@
 package moov
 
-import "github.com/jwhittle933/streamline/pkg/media/mp4/box"
+import (
+	"fmt"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
+)
 
 const (
 	MOOV string = "moov"
 )
 
 type Box struct {
-	BoxInfo *box.Info
+	base.Box
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{BoxInfo: i}
+	return &Box{base.Box{BoxInfo: i}}
 }
 
 func (Box) Type() string {
 	return MOOV
 }
 
-func (b *Box) Info() *box.Info {
-	return b.BoxInfo
+func (b Box) String() string {
+	return fmt.Sprintf(
+		"[%s] hex=%s, offset=%d, size=%d, header=%d",
+		string(b.BoxInfo.Type.String()),
+		b.BoxInfo.Type.HexString(),
+		b.BoxInfo.Offset,
+		b.BoxInfo.Size,
+		b.BoxInfo.HeaderSize,
+	)
 }
 
 // Write satisfies the io.Writer interface

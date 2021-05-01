@@ -51,7 +51,7 @@ func main() {
 	exitOnError(err, 1)
 	fmt.Printf("[mp4] size=%d\n", m.Size)
 	for _, b := range boxes {
-		fmt.Println(b.Info().String())
+		fmt.Println(b.String())
 	}
 }
 

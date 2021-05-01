@@ -22,6 +22,7 @@ type Informed interface {
 
 type Boxed interface {
 	io.Writer
+	fmt.Stringer
 	Typed
 	Informed
 }

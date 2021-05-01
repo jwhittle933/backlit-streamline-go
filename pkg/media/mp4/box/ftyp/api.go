@@ -3,7 +3,10 @@
 package ftyp
 
 import (
+	"encoding/binary"
+	"fmt"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
@@ -14,26 +17,45 @@ const (
 // If the segment type box (styp) is not present
 // the segment must conform to the brands listed in ftyp
 type Box struct {
-	BoxInfo          *box.Info
+	base.Box
 	MajorBrand       [4]byte
 	MinorVersion     uint32
 	CompatibleBrands [][4]byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{BoxInfo: i}
+	return &Box{base.Box{BoxInfo: i}, [4]byte{}, 0, [][4]byte{}}
 }
 
 func (Box) Type() string {
 	return FTYP
 }
 
-func (b Box) Info() *box.Info {
-	return b.BoxInfo
+func (b Box) String() string {
+	return fmt.Sprintf(
+		"[%s] hexname=%s, offset=%d, size=%d, header=%d, majorbrand=%s, minorversion=%d, compbrands=%s",
+		string(b.BoxInfo.Type.String()),
+		b.BoxInfo.Type.HexString(),
+		b.BoxInfo.Offset,
+		b.BoxInfo.Size,
+		b.BoxInfo.HeaderSize,
+		b.MajorBrand,
+		b.MinorVersion,
+		b.CompatibleBrands,
+	)
 }
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	copy(b.MajorBrand[:], src[:4])
+	b.MinorVersion = binary.BigEndian.Uint32(src[4:8])
+
+	dst := [4]byte{}
+	for i := 8; i < len(src); i += 4 {
+		copy(dst[:], src[i:i+4])
+		b.CompatibleBrands = append(b.CompatibleBrands, dst)
+	}
+
 	return len(src), nil
 }
 

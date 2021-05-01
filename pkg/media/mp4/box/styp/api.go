@@ -1,28 +1,39 @@
 package styp
 
-import "github.com/jwhittle933/streamline/pkg/media/mp4/box"
+import (
+	"fmt"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
+)
 
 const (
 	STYP string = "styp"
 )
 
 type Box struct {
-	BoxInfo *box.Info
+	base.Box
 	MajorBrand [4]byte
 	MinorVersion uint32
 	CompatibleBrands [][4]byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{BoxInfo: i}
+	return &Box{base.Box{BoxInfo: i}, [4]byte{}, 0, [][4]byte{}}
 }
 
 func (Box) Type() string {
 	return STYP
 }
 
-func (b *Box) Info() *box.Info {
-	return b.BoxInfo
+func (b Box) String() string {
+	return fmt.Sprintf(
+		"[%s] hex=%s, offset=%d, size=%d, header=%d",
+		string(b.BoxInfo.Type.String()),
+		b.BoxInfo.Type.HexString(),
+		b.BoxInfo.Offset,
+		b.BoxInfo.Size,
+		b.BoxInfo.HeaderSize,
+	)
 }
 
 // Write satisfies the io.Writer interface

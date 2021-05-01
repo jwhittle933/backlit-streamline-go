@@ -1,7 +1,9 @@
 package unknown
 
 import (
+	"fmt"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
@@ -9,12 +11,12 @@ const (
 )
 
 type Box struct {
-	BoxInfo *box.Info
+	base.Box
 	Data    []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{BoxInfo: i}
+	return &Box{base.Box{BoxInfo: i}, []byte{}}
 }
 
 func (Box) Type() string {
@@ -23,6 +25,17 @@ func (Box) Type() string {
 
 func (b *Box) Info() *box.Info {
 	return b.BoxInfo
+}
+
+func (b Box) String() string {
+	return fmt.Sprintf(
+		"[%s] hex=%s, offset=%d, size=%d, header=%d",
+		string(b.BoxInfo.Type.String()),
+		b.BoxInfo.Type.HexString(),
+		b.BoxInfo.Offset,
+		b.BoxInfo.Size,
+		b.BoxInfo.HeaderSize,
+	)
 }
 
 // Write satisfies the io.Writer interface

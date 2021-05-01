@@ -86,7 +86,8 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	}
 
 	buf := bytes.NewBuffer(make([]byte, 0, bi.HeaderSize))
-	if _, err := io.CopyN(buf, mp4, box.SmallHeader); err != nil {
+	// reader advances box.SmallHeader places
+	if _, err := io.CopyN(buf, mp4, int64(bi.HeaderSize)); err != nil {
 		return nil, err
 	}
 
@@ -102,34 +103,35 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 
 	b := boxFactory(bi)
 
-	if bi.Size == 0 {
-		off, _ = mp4.Seek(0, io.SeekEnd)
-		bi.Size = uint64(off) - bi.Offset
-		bi.ExtendToEOF = true
-		if _, err := bi.SeekPayload(mp4); err != nil {
-			return nil, err
-		}
+	//if bi.Size == 0 {
+	//	off, _ = mp4.Seek(0, io.SeekEnd)
+	//	bi.Size = uint64(off) - bi.Offset
+	//	bi.ExtendToEOF = true
+	//	if _, err := bi.SeekPayload(mp4); err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	return b, nil
+	//}
+	//
+	//if bi.Size == 1 {
+	//	buf.Reset()
+	//	if _, err := io.CopyN(buf, mp4, box.LargeHeader-box.SmallHeader); err != nil {
+	//		return nil, err
+	//	}
+	//
+	//	bi.HeaderSize += box.LargeHeader - box.SmallHeader
+	//	bi.Size = binary.BigEndian.Uint32(buf.Bytes())
+	//
+	//	return b, nil
+	//}
 
-		return b, nil
-	}
-
-	if bi.Size == 1 {
-		buf.Reset()
-		if _, err := io.CopyN(buf, mp4, box.LargeHeader-box.SmallHeader); err != nil {
-			return nil, err
-		}
-
-		bi.HeaderSize += box.LargeHeader - box.SmallHeader
-		bi.Size = binary.BigEndian.Uint64(buf.Bytes())
-
-		return b, nil
-	}
-
-	if _, err := io.CopyN(b, mp4, int64(bi.Size)); err != nil {
+	if _, err := io.CopyN(b, mp4, int64(bi.Size-bi.HeaderSize)); err != nil {
 		return nil, err
 	}
-	//_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
-	return b, nil
+
+	_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
+	return b, err
 }
 
 // ReadAll iteratively reads every top-level Box
