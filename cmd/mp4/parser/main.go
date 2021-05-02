@@ -47,10 +47,9 @@ func main() {
 
 	fmt.Printf("\n")
 
-	boxes, err := m.ReadAll()
-	exitOnError(err, 1)
+	exitOnError(m.ReadAll(), 1)
 	fmt.Printf("[mp4] size=%d\n", m.Size)
-	for _, b := range boxes {
+	for _, b := range m.Boxes {
 		fmt.Println(b.String())
 	}
 }

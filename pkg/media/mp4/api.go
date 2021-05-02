@@ -33,6 +33,8 @@ var mp4Children = children.Registry{
 	moof.MOOF: moof.New,
 	styp.STYP: styp.New,
 	free.FREE: free.New,
+	//sidx.SIDX: sidx.New,
+	//emsg.EMSG: emsg.New,
 }
 
 type MP4 struct {
@@ -42,7 +44,7 @@ type MP4 struct {
 }
 
 func New(r io.ReadSeeker) (*MP4, error) {
-	res := result.NewSuccess(&MP4{r: r, Size: 0})
+	res := result.NewSuccess(&MP4{r: r, Size: 0, Boxes: make([]box.Boxed, 0)})
 
 	return res.Success.(*MP4), res.Error
 }
@@ -85,7 +87,6 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	}
 
 	buf := bytes.NewBuffer(make([]byte, 0, bi.HeaderSize))
-	// reader advances box.SmallHeader places
 	if _, err := io.CopyN(buf, mp4, int64(bi.HeaderSize)); err != nil {
 		return nil, err
 	}
@@ -106,7 +107,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	//	off, _ = mp4.Seek(0, io.SeekEnd)
 	//	bi.Size = uint64(off) - bi.Offset
 	//	bi.ExtendToEOF = true
-	//	if _, err := bi.SeekPayload(mp4); err != nil {
+	//	if _, err := box.SeekPayload(mp4, b); err != nil {
 	//		return nil, err
 	//	}
 	//
@@ -137,24 +138,35 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 // from the mp4's underlying reader, and passes
 // reading responsibility for each box's children
 // to the Box
-func (mp4 *MP4) ReadAll() ([]box.Boxed, error) {
-	boxes := make([]box.Boxed, 0)
-
+func (mp4 *MP4) ReadAll() error {
 	var b box.Boxed
 	var err error
 
 	for {
 		b, err = mp4.ReadNext()
 		if err == io.EOF {
-			return boxes, nil
+			return nil
 		}
 
 		if err != nil || b == nil {
 			break
 		}
 
-		boxes = append(boxes, b)
+		mp4.Boxes = append(mp4.Boxes, b)
 	}
 
-	return boxes, err
+	return err
+}
+
+// Valid returns the validity of the mp4
+// based on ISO BMFF standards
+// 1. ftyp must contain major brand or compatible brands unsupported by the user agent
+// 2. A box or field in the moov box violates the requirements mandated by the major brand
+//    or one of the compatible brands
+// 3. The tracks in moov contain samples (i.e., the entry count in stts, stsc, or stco boxes
+//    are not set to 0
+// 4. The Movie Extends box (mvex) is not located in the Movie Box (moov) to indicate that
+//    Movie Fragments are to be expected
+func (mp4 *MP4) Valid() bool {
+	return true
 }

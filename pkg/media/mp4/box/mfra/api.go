@@ -1,3 +1,4 @@
+// Package mfra (Movie Fragment Random Access)
 package mfra
 
 const (

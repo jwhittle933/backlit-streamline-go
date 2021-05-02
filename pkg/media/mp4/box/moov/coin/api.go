@@ -1,5 +1,5 @@
-// Package moof (Movie Fragment)
-package moof
+// Package coin (Content Information)
+package coin
 
 import (
 	"fmt"
@@ -9,19 +9,21 @@ import (
 )
 
 const (
-	MOOF string = "moof"
+	COIN string = "coin"
 )
 
+// Box is ISOBMFF mdat box type
 type Box struct {
 	base.Box
+	Data []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}, []byte{}}
 }
 
 func (Box) Type() string {
-	return MOOF
+	return COIN
 }
 
 func (b Box) String() string {
@@ -35,7 +37,7 @@ func (b Box) String() string {
 	)
 }
 
-// Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	b.Data = src
 	return len(src), nil
 }

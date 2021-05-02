@@ -1,27 +1,28 @@
-// Package moof (Movie Fragment)
-package moof
+// Package avcn (AVC NAL Unit Storage)
+package avcn
 
 import (
 	"fmt"
-
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
-	MOOF string = "moof"
+	AVCN string = "avcn"
 )
 
+// Box is ISOBMFF mdat box type
 type Box struct {
 	base.Box
+	Data    []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}, []byte{}}
 }
 
 func (Box) Type() string {
-	return MOOF
+	return AVCN
 }
 
 func (b Box) String() string {
@@ -35,7 +36,7 @@ func (b Box) String() string {
 	)
 }
 
-// Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	b.Data = src
 	return len(src), nil
 }

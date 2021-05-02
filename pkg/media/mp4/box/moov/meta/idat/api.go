@@ -1,15 +1,14 @@
-// Package moof (Movie Fragment)
-package moof
+// Package idat (Image Data) for meta-data image files
+package idat
 
 import (
 	"fmt"
-
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
-	MOOF string = "moof"
+	IDAT string = "idat"
 )
 
 type Box struct {
@@ -21,13 +20,13 @@ func New(i *box.Info) box.Boxed {
 }
 
 func (Box) Type() string {
-	return MOOF
+	return IDAT
 }
 
 func (b Box) String() string {
 	return fmt.Sprintf(
 		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		string(b.BoxInfo.Type.String()),
+		b.BoxInfo.Type.String(),
 		b.BoxInfo.Type.HexString(),
 		b.BoxInfo.Offset,
 		b.BoxInfo.Size,
@@ -37,5 +36,6 @@ func (b Box) String() string {
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	// iteratively parse children
 	return len(src), nil
 }

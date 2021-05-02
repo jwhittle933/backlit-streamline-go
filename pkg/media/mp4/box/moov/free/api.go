@@ -1,5 +1,4 @@
-// Package moof (Movie Fragment)
-package moof
+package free
 
 import (
 	"fmt"
@@ -9,33 +8,44 @@ import (
 )
 
 const (
-	MOOF string = "moof"
+	FREE string = "free"
 )
 
+var (
+	empty []byte = []byte("empty")
+)
+
+
+// Box satisfies the box.Boxed interface
 type Box struct {
 	base.Box
+	Data []byte
 }
 
+// New satisfies the mp4.BoxFactory function
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}, []uint8{}}
 }
 
+// Type satisfies the box.Typed interface
 func (Box) Type() string {
-	return MOOF
+	return FREE
 }
 
 func (b Box) String() string {
 	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
+		"[%s] hex=%s, offset=%d, size=%d, header=%d, data=%s",
 		string(b.BoxInfo.Type.String()),
 		b.BoxInfo.Type.HexString(),
 		b.BoxInfo.Offset,
 		b.BoxInfo.Size,
 		b.BoxInfo.HeaderSize,
+		b.Data,
 	)
 }
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
+	b.Data = src
 	return len(src), nil
 }

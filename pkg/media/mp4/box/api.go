@@ -1,3 +1,5 @@
+// Package box defines functions to read from
+// and write to Boxes within in ISO BMFF box/atom
 package box
 
 import (
@@ -27,23 +29,6 @@ type Boxed interface {
 	Informed
 }
 
-type Box struct {
-	Boxed
-	BoxInfo *Info
-}
-
-func New(i *Info) *Box {
-	return &Box{BoxInfo: i}
-}
-
-func (b Box) Type() string {
-	return string(b.BoxInfo.Type[:])
-}
-
-func (b Box) Info() *Info {
-	return b.BoxInfo
-}
-
 type Info struct {
 	Offset      uint64
 	Size        uint64
@@ -52,17 +37,7 @@ type Info struct {
 	ExtendToEOF bool
 }
 
-func (i *Info) SeekPayload(s io.Seeker) (int64, error) {
-	return s.Seek(int64(i.Offset+i.HeaderSize), io.SeekStart)
-}
-
-func (i *Info) String() string {
-	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		string(i.Type.String()),
-		i.Type.HexString(),
-		i.Offset,
-		i.Size,
-		i.HeaderSize,
-	)
+func SeekPayload(s io.Seeker, b Boxed) (int64, error) {
+	info := b.Info()
+	return s.Seek(int64(info.Offset+info.HeaderSize), io.SeekStart)
 }

@@ -1,10 +1,11 @@
-// Package ftyp
+// Package ftyp (File Type and Compatibility)
 // See: http://www.ftyps.com/what.html#:~:text=It%20only%20pertains%20to%20MP4%20or%20newer%20QuickTime,QuickTime%20terminology%29%20or%20box%20type%20%28in%20MP4%20terminology%29.
 package ftyp
 
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
@@ -33,7 +34,7 @@ func (Box) Type() string {
 
 func (b Box) String() string {
 	return fmt.Sprintf(
-		"[%s] hexname=%s, offset=%d, size=%d, header=%d, majorbrand=%s, minorversion=%d, compbrands=%s",
+		"[%s] hexname=%s, offset=%d, size=%d, header=%d, majorbrand=%s, minorversion=%d, compatiblebrands=%s",
 		string(b.BoxInfo.Type.String()),
 		b.BoxInfo.Type.HexString(),
 		b.BoxInfo.Offset,
