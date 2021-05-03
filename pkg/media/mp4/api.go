@@ -7,14 +7,11 @@
 package mp4
 
 import (
-	"bytes"
-	"encoding/binary"
 	"encoding/hex"
 	"io"
 	"io/ioutil"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/boxtype"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/ftyp"
@@ -26,7 +23,7 @@ import (
 	"github.com/jwhittle933/streamline/pkg/result"
 )
 
-var mp4Children = children.Registry{
+var Children = children.Registry{
 	ftyp.FTYP: ftyp.New,
 	mdat.MDAT: mdat.New,
 	moov.MOOV: moov.New,
@@ -60,7 +57,6 @@ func (mp4 *MP4) Read(p []byte) (int, error) {
 
 // Seek satisfies the io.Seeker interface
 func (mp4 *MP4) Seek(offset int64, whence int) (int64, error) {
-	mp4.Size += uint64(offset)
 	return mp4.r.Seek(int64(mp4.Size), whence)
 }
 
@@ -79,59 +75,26 @@ func (mp4 *MP4) Hex() string {
 // ReadNext reads and returns the next Box from
 // the mp4's underlying reader
 func (mp4 *MP4) ReadNext() (box.Boxed, error) {
-	off, _ := mp4.Offset()
-
-	bi := &box.Info{
-		Offset:     uint64(off),
-		HeaderSize: box.SmallHeader,
-	}
-
-	buf := bytes.NewBuffer(make([]byte, 0, bi.HeaderSize))
-	if _, err := io.CopyN(buf, mp4, int64(bi.HeaderSize)); err != nil {
+	bi := &box.Info{}
+	err := box.ScanInfo(mp4, bi)
+	if err != nil {
 		return nil, err
 	}
 
-	data := buf.Bytes()
-	bi.Size = uint64(binary.BigEndian.Uint32(data))
-	bi.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
-
 	var boxFactory children.BoxFactory
 	var found bool
-	if boxFactory, found = mp4Children[bi.Type.String()]; !found {
+	if boxFactory, found = Children[bi.Type.String()]; !found {
 		boxFactory = unknown.New
 	}
 
 	b := boxFactory(bi)
 
-	//if bi.Size == 0 {
-	//	off, _ = mp4.Seek(0, io.SeekEnd)
-	//	bi.Size = uint64(off) - bi.Offset
-	//	bi.ExtendToEOF = true
-	//	if _, err := box.SeekPayload(mp4, b); err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	return b, nil
-	//}
-	//
-	//if bi.Size == 1 {
-	//	buf.Reset()
-	//	if _, err := io.CopyN(buf, mp4, box.LargeHeader-box.SmallHeader); err != nil {
-	//		return nil, err
-	//	}
-	//
-	//	bi.HeaderSize += box.LargeHeader - box.SmallHeader
-	//	bi.Size = binary.BigEndian.Uint32(buf.Bytes())
-	//
-	//	return b, nil
-	//}
-
+	// copy bytes starting at offset until Size - HeaderSize
 	if _, err := io.CopyN(b, mp4, int64(bi.Size-bi.HeaderSize)); err != nil {
 		return nil, err
 	}
 
-	_, err := mp4.Seek(int64(bi.Size), io.SeekStart)
-	return b, err
+	return b, nil
 }
 
 // ReadAll iteratively reads every top-level Box

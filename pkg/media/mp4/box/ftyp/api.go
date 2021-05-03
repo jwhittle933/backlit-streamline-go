@@ -34,12 +34,8 @@ func (Box) Type() string {
 
 func (b Box) String() string {
 	return fmt.Sprintf(
-		"[%s] hexname=%s, offset=%d, size=%d, header=%d, majorbrand=%s, minorversion=%d, compatiblebrands=%s",
-		string(b.BoxInfo.Type.String()),
-		b.BoxInfo.Type.HexString(),
-		b.BoxInfo.Offset,
-		b.BoxInfo.Size,
-		b.BoxInfo.HeaderSize,
+		"%s, majorbrand=%s, minorversion=%d, compatiblebrands=%s",
+		b.Info().String(),
 		b.MajorBrand,
 		b.MinorVersion,
 		b.CompatibleBrands,

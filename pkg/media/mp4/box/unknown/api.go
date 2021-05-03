@@ -1,7 +1,6 @@
 package unknown
 
 import (
-	"fmt"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
@@ -28,14 +27,7 @@ func (b *Box) Info() *box.Info {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		string(b.BoxInfo.Type.String()),
-		b.BoxInfo.Type.HexString(),
-		b.BoxInfo.Offset,
-		b.BoxInfo.Size,
-		b.BoxInfo.HeaderSize,
-	)
+	return b.Info().String()
 }
 
 // Write satisfies the io.Writer interface

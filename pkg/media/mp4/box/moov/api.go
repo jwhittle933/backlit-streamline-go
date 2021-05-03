@@ -1,49 +1,46 @@
 package moov
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/unknown"
+	"io"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/free"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/coin"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/meta"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/mvex"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/mvhd"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/pssh"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak"
 )
 
 const (
 	MOOV string = "moov"
 )
 
-var moovChildren = children.Registry{
+var Children = children.Registry{
+	coin.COIN: coin.New,
+	free.FREE: free.New,
+	meta.META: meta.New,
+	mvex.MVEX: mvex.New,
 	mvhd.MVHD: mvhd.New,
-	//trak.TRAK: trak.New,
-	//tkhd.TKHD: tkhd.New,
-	//edts.EDTS: edts.New,
-	//elst.ELST: elst.New,
-	//mdia.MDIA: mdia.New,
-	//mdhd.MDHD: mdhd.New,
-	//hdlr.HDLR: hdlr.New,
-	//minf.MINF: minf.New,
-	//vmhd.VMHD: vmhd.New,
-	//dinf.DINF: dinf.New,
-	//dref.DREF: dref.New,
-	//url.URL:   url.New,
-	//stbl.STBL: stbl.New,
-	//stsd.STSD: stsd.New,
-	//avc1.AVC1: avc1.New,
-	//avcC.AVCC: avcC.New,
-	//pasp.PASP: pasp.New,
-	//stts.STTS: stts.New,
-	//ctts.CTTS: ctts.New,
-	//stsc.STSC: stsc.New,
-	//stsz.STSZ: stsz.New,
-	//stco.STCO: stco.New,
+	pssh.PSSH: pssh.New,
+	trak.TRAK: trak.New,
 }
 
+// Box is ISO BMFF moov box.
+// The box contains no data itself
 type Box struct {
 	base.Box
+	Children []box.Boxed
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
@@ -51,18 +48,55 @@ func (Box) Type() string {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		b.BoxInfo.Type.String(),
-		b.BoxInfo.Type.HexString(),
-		b.BoxInfo.Offset,
-		b.BoxInfo.Size,
-		b.BoxInfo.HeaderSize,
-	)
+	s := b.Info().String() + "\n"
+
+	for _, c := range b.Children {
+		s += fmt.Sprintf("  %s\n", c.Info())
+	}
+
+	return s
 }
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
 	// iteratively parse children
+	r := bytes.NewReader(src)
+
+	for {
+		child, err := b.scan(r)
+		if err == io.EOF {
+			return len(src), nil
+		}
+
+		if err != nil || child == nil {
+			break
+		}
+
+		b.Children = append(b.Children, child)
+	}
+
 	return len(src), nil
+}
+
+func (b *Box) scan(r io.ReadSeeker) (box.Boxed, error) {
+	i := &box.Info{}
+	err := box.ScanInfo(r, i)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var boxFactory children.BoxFactory
+	var found bool
+	if boxFactory, found = Children[i.Type.String()]; !found {
+		boxFactory = unknown.New
+	}
+
+	child := boxFactory(i)
+
+	if _, err := io.CopyN(child, r, int64(i.Size-i.HeaderSize)); err != nil {
+		return nil, err
+	}
+
+	return child, nil
 }
