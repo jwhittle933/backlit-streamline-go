@@ -16,6 +16,14 @@ const (
 	LargeHeader uint64 = 16
 )
 
+type Versioned interface {
+	Version() uint8
+}
+
+type Flagged interface {
+	Flags() uint32
+}
+
 type Typed interface {
 	Type() string
 }

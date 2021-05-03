@@ -3,7 +3,6 @@ package moov
 import (
 	"bytes"
 	"fmt"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/unknown"
 	"io"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
@@ -16,6 +15,7 @@ import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/mvhd"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/pssh"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/unknown"
 )
 
 const (
@@ -48,10 +48,10 @@ func (Box) Type() string {
 }
 
 func (b Box) String() string {
-	s := b.Info().String() + "\n"
+	s := fmt.Sprintf("%s, boxes=%d\n", b.Info().String(), len(b.Children))
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("  %s\n", c.Info())
+		s += fmt.Sprintf("  %s\n", c.String())
 	}
 
 	return s
@@ -59,7 +59,6 @@ func (b Box) String() string {
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
-	// iteratively parse children
 	r := bytes.NewReader(src)
 
 	for {
