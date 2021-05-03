@@ -1,4 +1,5 @@
 // Package tkhd (Track Header)
+// See: https://github.com/itsjamie/bmff/blob/b0eabe94928cc481a1b373fc5e920257ab464912/tkhd.go#L15
 package tkhd
 
 import (

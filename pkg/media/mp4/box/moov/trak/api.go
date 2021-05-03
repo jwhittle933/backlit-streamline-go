@@ -1,4 +1,5 @@
 // Package trak (Track)
+// See: https://github.com/itsjamie/bmff/blob/master/trak.go
 package trak
 
 import (
@@ -41,10 +42,10 @@ func (Box) Type() string {
 }
 
 func (b Box) String() string {
-	s := fmt.Sprintf("%s, boxes=%d\n", b.Info(), len(b.Children))
+	s := fmt.Sprintf("%s, boxes=%d", b.Info(), len(b.Children))
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("    %s\n", c.String())
+		s += fmt.Sprintf("\n    %s", c.String())
 	}
 
 	return s
