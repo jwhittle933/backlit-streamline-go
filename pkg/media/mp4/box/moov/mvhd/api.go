@@ -4,6 +4,7 @@ package mvhd
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
@@ -57,9 +58,6 @@ func (Box) Type() string {
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	// check version
-	// CreationTime will be either 32 bit or 64 bit
-	// ModificationTime will be either 32 bit or 64 bit
 	b.raw = src
 	b.Version = src[0]
 	b.Flags = binary.BigEndian.Uint32([]byte{0x00, b.raw[1], b.raw[2], b.raw[3]})

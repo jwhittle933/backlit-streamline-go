@@ -17,7 +17,7 @@ const (
 )
 
 type Versioned interface {
-	Version() uint8
+	WriteVersion(src []byte) []byte
 }
 
 type Flagged interface {
@@ -105,6 +105,10 @@ func ScanInfo(r io.ReadSeeker, i *Info) error {
 	}
 
 	return nil
+}
+
+func WriteVersion(src []byte, v Versioned) []byte {
+	return v.WriteVersion(src)
 }
 
 func Scan(r io.ReadSeeker, b Boxed) error {
