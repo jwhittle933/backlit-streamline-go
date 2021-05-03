@@ -4,6 +4,7 @@ package trak
 import (
 	"bytes"
 	"fmt"
+	"github.com/jwhittle933/streamline/pkg/media/mp4/box/scanner"
 	"io"
 
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
@@ -13,7 +14,6 @@ import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/tkhd"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/udta"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/unknown"
 )
 
 const (
@@ -52,10 +52,10 @@ func (b Box) String() string {
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
-	r := bytes.NewReader(src)
+	s := scanner.New(bytes.NewReader(src))
 
 	for {
-		child, err := b.scan(r)
+		child, err := s.ScanFor(Children)
 		if err == io.EOF {
 			return len(src), nil
 		}
@@ -68,27 +68,4 @@ func (b *Box) Write(src []byte) (int, error) {
 	}
 
 	return len(src), nil
-}
-
-func (b *Box) scan(r io.ReadSeeker) (box.Boxed, error) {
-	i := &box.Info{}
-	err := box.ScanInfo(r, i)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var boxFactory children.BoxFactory
-	var found bool
-	if boxFactory, found = Children[i.Type.String()]; !found {
-		boxFactory = unknown.New
-	}
-
-	child := boxFactory(i)
-
-	if _, err := io.CopyN(child, r, int64(i.Size-i.HeaderSize)); err != nil {
-		return nil, err
-	}
-
-	return child, nil
 }

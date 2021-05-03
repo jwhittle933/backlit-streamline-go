@@ -81,7 +81,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 		return nil, err
 	}
 
-	var boxFactory children.BoxFactory
+	var boxFactory box.Factory
 	var found bool
 	if boxFactory, found = Children[bi.Type.String()]; !found {
 		boxFactory = unknown.New

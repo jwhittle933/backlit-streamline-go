@@ -16,6 +16,8 @@ const (
 	LargeHeader uint64 = 16
 )
 
+type Factory func(*Info) Boxed
+
 type Versioned interface {
 	WriteVersion(src []byte) []byte
 }
@@ -92,7 +94,7 @@ func ScanInfo(r io.ReadSeeker, i *Info) error {
 	}
 
 	if i.Size == 1 {
-		headerSize := LargeHeader-SmallHeader
+		headerSize := LargeHeader - SmallHeader
 		buf.Reset()
 		if _, err := io.CopyN(buf, r, int64(headerSize)); err != nil {
 			return err
@@ -104,13 +106,5 @@ func ScanInfo(r io.ReadSeeker, i *Info) error {
 		return nil
 	}
 
-	return nil
-}
-
-func WriteVersion(src []byte, v Versioned) []byte {
-	return v.WriteVersion(src)
-}
-
-func Scan(r io.ReadSeeker, b Boxed) error {
 	return nil
 }
