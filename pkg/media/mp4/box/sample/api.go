@@ -1,11 +1,14 @@
 package sample
 
+import "github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
+
 type Entry struct {
+	base.Box
 	_reserved          [6]uint8
 	DataReferenceIndex uint16
 }
 
-type VisualEntry struct {
+type Visual struct {
 	Entry
 	Predefined           uint16
 	_reserved            uint16
@@ -21,7 +24,8 @@ type VisualEntry struct {
 	Predefined3          int16
 }
 
-type AudioEntry struct {
+type Audio struct {
+	Entry
 	Version       uint16
 	_reserved     [3]uint16
 	ChannelCount  uint16

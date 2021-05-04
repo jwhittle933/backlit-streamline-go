@@ -5,7 +5,7 @@ import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia/minf/stbl/stsc/sinf/schi/tenc"
+	tenc2 "github.com/jwhittle933/streamline/pkg/media/mp4/box/sinf/schi/tenc"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 
 var (
 	Children = children.Registry{
-		tenc.TENC: tenc.New,
+		tenc2.TENC: tenc2.New,
 	}
 )
 

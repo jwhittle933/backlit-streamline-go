@@ -4,6 +4,7 @@ package stbl
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
@@ -43,7 +44,7 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	s := fmt.Sprintf("%s, boxes=%d", b.Info().String(), len(b.Children))
+	s := fmt.Sprintf("%s, boxes=%d, status=\033[35mINCOMPLETE\033[0m", b.Info().String(), len(b.Children))
 
 	for _, c := range b.Children {
 		s += fmt.Sprintf("\n--------->%s", c.String())

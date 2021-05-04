@@ -71,7 +71,7 @@ func (m Measurement) UInt16() uint16 {
 
 func (b Box) String() string {
 	return b.Info().String() + fmt.Sprintf(
-		", version=%d, flags=%d, creation=%d, modification=%d",
+		", version=%d, flags=%x, creation=%d, modification=%d",
 		b.Version,
 		b.Flags,
 		b.CreationTime,

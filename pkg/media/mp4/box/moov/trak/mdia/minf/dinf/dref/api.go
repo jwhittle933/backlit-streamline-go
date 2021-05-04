@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
@@ -51,7 +52,7 @@ func (b *Box) String() string {
 	)
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n--------->%s", c.String())
+		s += fmt.Sprintf("\n----------->%s", c.String())
 	}
 
 	return s

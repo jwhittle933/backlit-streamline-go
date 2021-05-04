@@ -2,30 +2,24 @@
 package stsc
 
 import (
-	"bytes"
+	"encoding/binary"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia/minf/stbl/stsc/sinf"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/scanner"
 )
 
 const (
 	STSC string = "stsc"
 )
 
-var (
-	Children = children.Registry{
-		sinf.SINF: sinf.New,
-	}
-)
-
 type Box struct {
 	base.Box
+	Version    uint8
+	Flags      uint32
 	EntryCount uint32
-	Entries    []Entry
-	Children   []box.Boxed
+	Entries    Entries
+	raw        []byte
 }
 
 type Entry struct {
@@ -34,8 +28,25 @@ type Entry struct {
 	SampleDescriptionIndex uint32
 }
 
+type Entries []Entry
+
+func (e Entries) String() string {
+	if len(e) > 2 {
+		return shortString(e)
+	}
+
+	return verboseString(e)
+}
+
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}, 0, make([]Entry, 0), make([]box.Boxed, 0)}
+	return &Box{
+		base.Box{BoxInfo: i},
+		0,
+		0,
+		0,
+		make([]Entry, 0),
+		make([]byte, 0),
+	}
 }
 
 func (Box) Type() string {
@@ -43,19 +54,74 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	s := fmt.Sprintf("%s, boxes=%d", b.Info().String(), len(b.Children))
-
-	for _, c := range b.Children {
-		s += fmt.Sprintf("\n----------->%s", c.String())
-	}
+	s := fmt.Sprintf(
+		"%s, version=%d, flags=%d, entry_count=%d, entries=[%s]",
+		b.Info().String(),
+		b.Version,
+		b.Flags,
+		b.EntryCount,
+		b.Entries.String(),
+	)
 
 	return s
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	s := scanner.New(bytes.NewReader(src))
-	found, err := s.ScanAllChildren(Children)
-	b.Children = found
+	b.Version = src[0]
+	b.Flags = binary.BigEndian.Uint32([]byte{0x00, src[1], src[2], src[3]})
+	b.raw = src[4:]
 
-	return len(src), err
+	b.EntryCount = binary.BigEndian.Uint32(b.raw[0:4])
+	offset := 4
+	for i := 0; uint32(i) < b.EntryCount; i++ {
+		entry := Entry{
+			FirstChunk:             binary.BigEndian.Uint32(b.raw[offset : offset+4]),
+			SamplesPerChunk:        binary.BigEndian.Uint32(b.raw[offset+4 : offset+8]),
+			SampleDescriptionIndex: binary.BigEndian.Uint32(b.raw[offset+8 : offset+12]),
+		}
+
+		offset += 12
+		b.Entries = append(b.Entries, entry)
+	}
+
+	return len(src), nil
+}
+func shortString(e Entries) string {
+	var s string
+
+	for i, entry := range e {
+		s += fmt.Sprintf(
+			"{%d, %d, %d}%s",
+			entry.FirstChunk,
+			entry.SamplesPerChunk,
+			entry.SampleDescriptionIndex,
+			lastItem(i, len(e)-1),
+		)
+	}
+
+	return s
+}
+
+func verboseString(e Entries) string {
+	var s string
+
+	for i, entry := range e {
+		s += fmt.Sprintf(
+			"{first_chunk=%d, samples_per_chunk=%d, sample_description_index=%d}%s",
+			entry.FirstChunk,
+			entry.SamplesPerChunk,
+			entry.SampleDescriptionIndex,
+			lastItem(i, len(e)-1),
+		)
+	}
+
+	return s
+}
+
+func lastItem(delta int, length int) string {
+	if delta == length {
+		return ""
+	}
+
+	return ", "
 }

@@ -5,9 +5,9 @@ import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/children"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia/minf/stbl/stsc/sinf/frma"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia/minf/stbl/stsc/sinf/schi"
-	"github.com/jwhittle933/streamline/pkg/media/mp4/box/moov/trak/mdia/minf/stbl/stsc/sinf/schm"
+	frma2 "github.com/jwhittle933/streamline/pkg/media/mp4/box/sinf/frma"
+	schi2 "github.com/jwhittle933/streamline/pkg/media/mp4/box/sinf/schi"
+	schm2 "github.com/jwhittle933/streamline/pkg/media/mp4/box/sinf/schm"
 )
 
 const (
@@ -16,9 +16,9 @@ const (
 
 var (
 	Children = children.Registry{
-		frma.FRMA: frma.New,
-		schi.SCHI: schi.New,
-		schm.SCHM: schm.New,
+		frma2.FRMA: frma2.New,
+		schi2.SCHI: schi2.New,
+		schm2.SCHM: schm2.New,
 	}
 )
 
