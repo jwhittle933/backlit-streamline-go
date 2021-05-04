@@ -1,39 +1,40 @@
-// Package smhd (Sound Media Header)
-package smhd
+package url
 
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
-	SMHD string = "smhd"
+	URL           string = "url "
+	SelfContained uint32 = 0x000001
 )
 
 type Box struct {
 	base.Box
-	Version   uint8
-	Flags     uint32
-	Balance   int16
-	_reserved uint16
+	Version  uint8
+	Flags    uint32
+	Location string
+	raw      []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}, 0, 0, 0, 0}
+	return &Box{base.Box{BoxInfo: i}, 0, 0, "", make([]byte, 0)}
 }
 
 func (Box) Type() string {
-	return SMHD
+	return URL
 }
 
 func (b *Box) String() string {
 	return b.Info().String() + fmt.Sprintf(
-		", version=%d, flags=%d, balance=%d",
+		", version=%d, flags=%d, location=%s",
 		b.Version,
 		b.Flags,
-		b.Balance,
+		b.Location,
 	)
 }
 
@@ -41,8 +42,10 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.Version = src[0]
 	b.Flags = binary.BigEndian.Uint32([]byte{0x00, src[1], src[2], src[3]})
 
-	b.Balance = int16(binary.BigEndian.Uint16(src[4:6]))
-	b._reserved = binary.BigEndian.Uint16(src[6:8])
+	if b.Flags&SelfContained > 0 {
+		b.Location = string(src[4:])
+	}
 
+	b.raw = src
 	return len(src), nil
 }

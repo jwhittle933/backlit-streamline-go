@@ -1,5 +1,4 @@
-// Package schm (Scheme Type)
-package schm
+package urn
 
 import (
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
@@ -7,22 +6,22 @@ import (
 )
 
 const (
-	SCHM string = "schm"
+	URN string = "urn "
+	SelfContained uint = 0x000001
 )
 
 type Box struct {
 	base.Box
-	SchemeType    [4]byte
-	SchemeVersion uint32
-	SchemeUri     []byte
-}
-
-func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}, [4]byte{}, 0, make([]byte, 0)}
+	Name     string
+	Location string
 }
 
 func (Box) Type() string {
-	return SCHM
+	return URN
+}
+
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, "", ""}
 }
 
 func (b *Box) String() string {

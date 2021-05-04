@@ -11,6 +11,7 @@ import (
 )
 
 type Scanner interface {
+	ScanAllChildren(knownChildren children.Registry) ([]box.Boxed, error)
 	ScanFor(knownChildren children.Registry) (box.Boxed, error)
 	ScanInfo(i *box.Info) error
 	SeekPayload(info *box.Info) (int64, error)
@@ -22,6 +23,27 @@ type scanner struct {
 
 func New(r io.ReadSeeker) Scanner {
 	return &scanner{r}
+}
+
+func (s *scanner) ScanAllChildren(knownChildren children.Registry) ([]box.Boxed, error) {
+	found := make([]box.Boxed, 0)
+
+	var child box.Boxed
+	var err error
+	for {
+		child, err = s.ScanFor(knownChildren)
+		if err == io.EOF {
+			return found, err
+		}
+
+		if err != nil || child == nil {
+			break
+		}
+
+		found = append(found, child)
+	}
+
+	return found, err
 }
 
 func (s *scanner) ScanFor(knownChildren children.Registry) (box.Boxed, error) {

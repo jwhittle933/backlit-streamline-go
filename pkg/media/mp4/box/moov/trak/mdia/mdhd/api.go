@@ -97,3 +97,4 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.Predefined = binary.BigEndian.Uint16(b.raw[offset+2 : offset+4])
 	return len(src), nil
 }
+
