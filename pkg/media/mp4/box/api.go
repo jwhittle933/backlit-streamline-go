@@ -51,9 +51,8 @@ type Info struct {
 
 func (i Info) String() string {
 	return fmt.Sprintf(
-		"[%s] hexname=%s, offset=%d, size=%d, header=%d",
+		"[%s] offset=%d, size=%d, header=%d",
 		i.Type.String(),
-		i.Type.HexString(),
 		i.Offset,
 		i.Size,
 		i.HeaderSize,

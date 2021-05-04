@@ -4,6 +4,9 @@
 // See: https://www.ramugedia.com/mp4-container
 // See: https://bitmovin.com/fun-with-container-formats-2/
 // See https://www.w3.org/2013/12/byte-stream-format-registry/isobmff-byte-stream-format.html
+// See: *** https://www.uvcentral.com/files/CFFMediaFormat-2_1.pdf ***
+// See: *** https://b.goeswhere.com/ISO_IEC_14496-12_2015.pdf ***
+// See: *** https://opus-codec.org/docs/opus_in_isobmff.html ***
 package mp4
 
 import (
