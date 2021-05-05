@@ -4,10 +4,6 @@ package boxtype
 
 import "fmt"
 
-type Boxed interface {
-	Type() string
-}
-
 type BoxType [4]byte
 
 func New(code [4]byte) BoxType {
