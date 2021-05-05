@@ -8,7 +8,7 @@ type Entry struct {
 	DataReferenceIndex uint16 // 2 bytes
 }
 
-type Visual struct { // 80 bytes
+type Visual struct { // 70 bytes
 	Entry
 	Predefined           uint16    // 2 bytes
 	_reserved            uint16    // 2 bytes
@@ -26,14 +26,14 @@ type Visual struct { // 80 bytes
 
 type Audio struct {
 	Entry
-	Version       uint16
-	_reserved     [3]uint16
-	ChannelCount  uint16
-	SampleSize    uint16
-	Predefined    uint16
-	_reserved2    uint16
-	SampleRate    uint32
-	QuickTimeData []byte
+	Version       uint16    // 2 bytes
+	_reserved     [3]uint16 // 6 bytes
+	ChannelCount  uint16    // 2 bytes
+	SampleSize    uint16    // 2 bytes
+	Predefined    uint16    // 2 bytes
+	_reserved2    uint16    // 2 bytes
+	SampleRate    uint32    // 4 bytes
+	QuickTimeData []byte    // dynamic
 }
 
 type PixelAspectRatio struct {

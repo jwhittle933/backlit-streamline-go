@@ -2,12 +2,19 @@ package avcC
 
 import (
 	"fmt"
+
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box"
 	"github.com/jwhittle933/streamline/pkg/media/mp4/box/base"
 )
 
 const (
-	AVCC string = "avcC"
+	AVCC            string = "avcC"
+	BaselineProfile uint8  = 66
+	MainProfile     uint8  = 77
+	ExtendedProfile uint8  = 88
+	HighProfile     uint8  = 100
+	High10Profile   uint8  = 110
+	High422Profile  uint8  = 122
 )
 
 type Box struct {
@@ -37,6 +44,10 @@ type Box struct {
 type ParameterSet struct {
 	Length  uint16
 	NALUnit []byte
+}
+
+type NALUnit struct {
+	_forbidden uint8
 }
 
 func New(i *box.Info) box.Boxed {
@@ -71,10 +82,14 @@ func (b *Box) Write(src []byte) (int, error) {
 
 	//offset := 7
 	//for i := 0; uint8(i) < b.SequenceParameterSetsLen; i++ {
+	//	length := binary.BigEndian.Uint16(src[offset : offset+2])
 	//	ps := ParameterSet{
-	//		Length: binary.BigEndian.Uint16(src[offset:offset+2]),
+	//		Length:  length,
+	//		NALUnit: src[offset+2 : offset+int(length)],
 	//	}
+	//
 	//	b.SequenceParameterSets[i] = ps
+	//	offset += 2 + int(length)
 	//}
 
 	return len(src), nil
