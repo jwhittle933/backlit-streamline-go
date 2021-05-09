@@ -34,7 +34,6 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	fmt.Println("PASP Stringer")
 	return b.Info().String() + fmt.Sprintf(
 		", horiz_spacing=%d, vert_spacing=%d",
 		b.HSpacing,
