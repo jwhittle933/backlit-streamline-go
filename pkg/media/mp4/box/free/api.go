@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	empty []byte = []byte("empty")
+	empty = []byte("empty")
 )
 
 
