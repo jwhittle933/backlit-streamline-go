@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	mp42 "github.com/jwhittle933/streamline/media/mp4"
 	"os"
 	"path/filepath"
-
-	"github.com/jwhittle933/streamline/pkg/media/mp4"
 )
 
 func main() {
@@ -37,7 +36,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	m, err := mp4.New(file)
+	m, err := mp42.New(file)
 	exitOnError(err, 1)
 
 	if *dump {
