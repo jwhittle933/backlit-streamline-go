@@ -3,7 +3,6 @@ package mp4
 
 import (
 	"encoding/hex"
-	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
 	"io"
 	"io/ioutil"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/mdat"
 	"github.com/jwhittle933/streamline/media/mp4/box/moof"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov"
+	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
 	"github.com/jwhittle933/streamline/media/mp4/box/styp"
 	"github.com/jwhittle933/streamline/media/mp4/box/unknown"
 	"github.com/jwhittle933/streamline/result"

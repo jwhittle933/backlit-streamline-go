@@ -3,6 +3,7 @@ package visual
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
@@ -116,7 +117,7 @@ func (s *SampleEntry) WriteCompressor(sr *slicereader.Reader) {
 
 	s.CompressorName = sr.String(int(compressorNameLength))
 	if s.CompressorName == "" {
-		s.CompressorName = "EMPTY"
+		s.CompressorName = `""`
 	}
 	sr.Skip(int(31 - compressorNameLength))
 	//sr.Skip(32)

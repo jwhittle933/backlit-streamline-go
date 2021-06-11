@@ -44,7 +44,11 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	s := fmt.Sprintf("%s, boxes=%d, status=\033[35mINCOMPLETE\033[0m", b.Info().String(), len(b.Children))
+	s := fmt.Sprintf(
+		"%s, boxes=%d, status=\033[35mINCOMPLETE\033[0m",
+		b.Info(),
+		len(b.Children),
+	)
 
 	for _, c := range b.Children {
 		s += fmt.Sprintf("\n          %s", c.String())

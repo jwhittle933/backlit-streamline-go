@@ -3,7 +3,7 @@ package esds
 import (
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
 	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	descriptor2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd/mp4a/esds/descriptor"
+	descriptor2 "github.com/jwhittle933/streamline/media/mp4/box/sample/audio/esds/descriptor"
 )
 
 const (

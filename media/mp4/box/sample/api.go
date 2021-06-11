@@ -1,11 +1,11 @@
 package sample
 
 import (
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 type Entry struct {
-	base2.Box
+	base.Box
 	_reserved          [6]uint8
 	DataReferenceIndex uint16 // 2 bytes
 }
@@ -28,7 +28,6 @@ type Visual struct { // 70 bytes
 
 type Audio struct {
 	Entry
-	Version       uint16    // 2 bytes
 	_reserved     [3]uint16 // 6 bytes
 	ChannelCount  uint16    // 2 bytes
 	SampleSize    uint16    // 2 bytes
@@ -39,7 +38,7 @@ type Audio struct {
 }
 
 type PixelAspectRatio struct {
-	base2.Box
+	base.Box
 	HSpacing uint32
 	VSpacing uint32
 }

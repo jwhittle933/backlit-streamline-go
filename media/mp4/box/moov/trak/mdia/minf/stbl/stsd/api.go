@@ -9,7 +9,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
-	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd/mp4a"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/audio"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
@@ -20,11 +20,11 @@ const (
 
 var (
 	Children = children.Registry{
-		"avc1":     visual.New,
-		"avc3":     visual.New,
-		"hev1":     visual.New,
-		"hvc1":     visual.New,
-		mp4a.MP4A: mp4a.New,
+		"avc1": visual.New,
+		"avc3": visual.New,
+		"hev1": visual.New,
+		"hvc1": visual.New,
+		"mp4a": audio.New,
 	}
 )
 
