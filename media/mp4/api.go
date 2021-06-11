@@ -1,39 +1,32 @@
-// Package mp4 for MP4 parsing
-// See: https://dev.to/sunfishshogi/go-mp4-golang-library-and-cli-tool-for-mp4-52o1
-// See: https://openmp4file.com/format.html#:~:text=MP4%20structures%20are%20typically%20referred,below%20have%20precisely%204%20symbols.
-// See: https://www.ramugedia.com/mp4-container
-// See: https://bitmovin.com/fun-with-container-formats-2/
-// See https://www.w3.org/2013/12/byte-stream-format-registry/isobmff-byte-stream-format.html
-// See: *** https://www.uvcentral.com/files/CFFMediaFormat-2_1.pdf ***
-// See: *** https://b.goeswhere.com/ISO_IEC_14496-12_2015.pdf ***
-// See: *** https://opus-codec.org/docs/opus_in_isobmff.html ***
+// Package mp4 for MP4 Reading and Writing
 package mp4
 
 import (
 	"encoding/hex"
+	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
+	"io"
+	"io/ioutil"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
-	free2 "github.com/jwhittle933/streamline/media/mp4/box/free"
-	ftyp2 "github.com/jwhittle933/streamline/media/mp4/box/ftyp"
-	mdat2 "github.com/jwhittle933/streamline/media/mp4/box/mdat"
-	moof2 "github.com/jwhittle933/streamline/media/mp4/box/moof"
-	moov2 "github.com/jwhittle933/streamline/media/mp4/box/moov"
-	styp2 "github.com/jwhittle933/streamline/media/mp4/box/styp"
-	unknown2 "github.com/jwhittle933/streamline/media/mp4/box/unknown"
+	"github.com/jwhittle933/streamline/media/mp4/box/free"
+	"github.com/jwhittle933/streamline/media/mp4/box/ftyp"
+	"github.com/jwhittle933/streamline/media/mp4/box/mdat"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov"
+	"github.com/jwhittle933/streamline/media/mp4/box/styp"
+	"github.com/jwhittle933/streamline/media/mp4/box/unknown"
 	"github.com/jwhittle933/streamline/result"
-	"io"
-	"io/ioutil"
 )
 
 var Children = children.Registry{
-	ftyp2.FTYP: ftyp2.New,
-	mdat2.MDAT: mdat2.New,
-	moov2.MOOV: moov2.New,
-	moof2.MOOF: moof2.New,
-	styp2.STYP: styp2.New,
-	free2.FREE: free2.New,
-	//sidx.SIDX: sidx.New,
+	ftyp.FTYP: ftyp.New,
+	mdat.MDAT: mdat.New,
+	moov.MOOV: moov.New,
+	moof.MOOF: moof.New,
+	styp.STYP: styp.New,
+	free.FREE: free.New,
+	sidx.SIDX: sidx.New,
 	//emsg.EMSG: emsg.New,
 }
 
@@ -87,7 +80,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	var boxFactory box.Factory
 	var found bool
 	if boxFactory, found = Children[bi.Type.String()]; !found {
-		boxFactory = unknown2.New
+		boxFactory = unknown.New
 	}
 
 	b := boxFactory(bi)

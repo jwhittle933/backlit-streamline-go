@@ -3,30 +3,30 @@ package visual
 import (
 	"bytes"
 	"fmt"
-	slicereader2 "github.com/jwhittle933/streamline/bits/slicereader"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
-	avcC2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/avcC"
-	btrt2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/btrt"
-	clap2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/clap"
-	hvcC2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/hvcC"
-	pasp2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/pasp"
-	scanner2 "github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/avcC"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/btrt"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/clap"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/hvcC"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/pasp"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 var (
-	Children = children2.Registry{
-		avcC2.AVCC: avcC2.New,
-		hvcC2.HVCC: hvcC2.New,
-		btrt2.BTRT: btrt2.New,
-		clap2.CLAP: clap2.New,
-		pasp2.PASP: pasp2.New,
+	Children = children.Registry{
+		avcC.AVCC: avcC.New,
+		hvcC.HVCC: hvcC.New,
+		btrt.BTRT: btrt.New,
+		clap.CLAP: clap.New,
+		pasp.PASP: pasp.New,
 	}
 )
 
 type SampleEntry struct {
-	base2.Box
+	base.Box
 	DataReferenceIndex uint16
 	Width              uint16
 	Height             uint16
@@ -34,12 +34,12 @@ type SampleEntry struct {
 	VertResolution     uint32
 	FrameCount         uint16
 	CompressorName     string
-	Children           []box2.Boxed
+	Children           []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
+func New(i *box.Info) box.Boxed {
 	return &SampleEntry{
-		base2.Box{BoxInfo: i},
+		base.Box{BoxInfo: i},
 		0,
 		0,
 		0,
@@ -47,7 +47,7 @@ func New(i *box2.Info) box2.Boxed {
 		0,
 		0,
 		"",
-		make([]box2.Boxed, 0, 0),
+		make([]box.Boxed, 0, 0),
 	}
 }
 
@@ -66,7 +66,7 @@ func (s SampleEntry) String() string {
 	)
 
 	for _, child := range s.Children {
-		out += fmt.Sprintf("\n------------->%s", child)
+		out += fmt.Sprintf("\n              %s", child)
 	}
 
 	return out
@@ -77,7 +77,7 @@ func (s SampleEntry) Type() string {
 }
 
 func (s *SampleEntry) Write(src []byte) (int, error) {
-	sr := slicereader2.New(src)
+	sr := slicereader.New(src)
 	sr.Skip(6) // 6 bytes for reserved
 	s.DataReferenceIndex = sr.Uint16()
 
@@ -96,7 +96,7 @@ func (s *SampleEntry) Write(src []byte) (int, error) {
 	sr.Skip(2) // 16 bits for reserved
 
 	remaining := bytes.NewReader(sr.Remaining())
-	sc := scanner2.New(remaining)
+	sc := scanner.New(remaining)
 
 	var err error
 	s.Children, err = sc.ScanAllChildren(Children)
@@ -104,11 +104,11 @@ func (s *SampleEntry) Write(src []byte) (int, error) {
 		return 0, err
 	}
 
-	return box2.FullRead(len(src))
+	return box.FullRead(len(src))
 }
 
 // WriteCompressor TODO: write compressor name
-func (s *SampleEntry) WriteCompressor(sr *slicereader2.Reader) {
+func (s *SampleEntry) WriteCompressor(sr *slicereader.Reader) {
 	compressorNameLength := sr.Uint8()
 	if compressorNameLength > 31 {
 		s.CompressorName = "INVALID"

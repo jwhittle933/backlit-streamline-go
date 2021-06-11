@@ -4,8 +4,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	slicereader2 "github.com/jwhittle933/streamline/bits/slicereader"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
+
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
 )
 
 var (
@@ -31,7 +32,7 @@ func New() DecoderConfig {
 }
 
 func (d *DecoderConfig) Write(src []byte) (int, error) {
-	sr := slicereader2.New(src)
+	sr := slicereader.New(src)
 	if unknownConfiguration(sr.Uint8()) {
 		return 0, fmt.Errorf("AVC decoder configuration record version %d unknown", src[0])
 	}
@@ -69,7 +70,7 @@ func (d *DecoderConfig) Write(src []byte) (int, error) {
 	case 100, 110, 122, 144:
 		if pos == len(src) {
 			d.NoTrailingInfo = true
-			return box2.FullRead(len(src))
+			return box.FullRead(len(src))
 		}
 
 		d.ChromaFormat = src[pos] & 0x3f
@@ -83,7 +84,7 @@ func (d *DecoderConfig) Write(src []byte) (int, error) {
 	default:
 	}
 
-	return box2.FullRead(len(src))
+	return box.FullRead(len(src))
 }
 
 func unknownConfiguration(version byte) bool {

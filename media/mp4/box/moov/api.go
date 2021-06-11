@@ -49,7 +49,7 @@ func (b Box) String() string {
 	s := fmt.Sprintf("%s, children=%d", b.Info(), len(b.Children))
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n->%s", c.String())
+		s += fmt.Sprintf("\n  %s", c.String())
 	}
 
 	return s

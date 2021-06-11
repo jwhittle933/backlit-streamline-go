@@ -47,7 +47,7 @@ func main() {
 	fmt.Printf("\n")
 
 	exitOnError(m.ReadAll(), 1)
-	fmt.Printf("[mp4] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
+	fmt.Printf("[\033[1;35mmp4\033[0m] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
 	for _, b := range m.Boxes {
 		fmt.Println(b.String())
 	}

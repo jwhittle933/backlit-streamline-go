@@ -7,13 +7,15 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	boxtype2 "github.com/jwhittle933/streamline/media/mp4/box/boxtype"
 	"io"
+
+	"github.com/jwhittle933/streamline/media/mp4/box/boxtype"
 )
 
 const (
 	SmallHeader uint64 = 8
 	LargeHeader uint64 = 16
+	FlagsMask          = 0x00ffffff
 )
 
 type Factory func(*Info) Boxed
@@ -36,14 +38,14 @@ type Boxed interface {
 type Info struct {
 	Offset      uint64
 	Size        uint64
-	Type        boxtype2.BoxType
+	Type        boxtype.BoxType
 	HeaderSize  uint64
 	ExtendToEOF bool
 }
 
 func (i Info) String() string {
 	return fmt.Sprintf(
-		"[%s] offset=%d, size=%d, header=%d",
+		"[\033[1;36m%s\033[0m] offset=%d, size=%d, header=%d",
 		i.Type.String(),
 		i.Offset,
 		i.Size,
@@ -82,7 +84,7 @@ func ScanInfo(r io.ReadSeeker, i *Info) error {
 
 	data := buf.Bytes()
 	i.Size = uint64(binary.BigEndian.Uint32(data))
-	i.Type = boxtype2.New([4]byte{data[4], data[5], data[6], data[7]})
+	i.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
 
 	if i.Size == 0 {
 		off, _ = r.Seek(0, io.SeekEnd)

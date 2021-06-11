@@ -4,8 +4,9 @@ package stsc
 import (
 	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	Version    uint8
 	Flags      uint32
 	EntryCount uint32
@@ -37,9 +38,9 @@ func (e Entries) String() string {
 	return verboseString(e)
 }
 
-func New(i *box2.Info) box2.Boxed {
+func New(i *box.Info) box.Boxed {
 	return &Box{
-		base2.Box{BoxInfo: i},
+		base.Box{BoxInfo: i},
 		0,
 		0,
 		0,
@@ -54,12 +55,11 @@ func (Box) Type() string {
 
 func (b *Box) String() string {
 	s := fmt.Sprintf(
-		"%s, version=%d, flags=%d, entry_count=%d, entries=[%s]",
-		b.Info().String(),
+		"%s, version=%d, flags=%d, entries=%d",
+		b.Info(),
 		b.Version,
 		b.Flags,
 		b.EntryCount,
-		b.Entries.String(),
 	)
 
 	return s

@@ -5,12 +5,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
-	url2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/url"
-	urn2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/urn"
-	scanner2 "github.com/jwhittle933/streamline/media/mp4/box/scanner"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/url"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/urn"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
@@ -19,23 +20,29 @@ const (
 )
 
 var (
-	Children = children2.Registry{
-		url2.URL: url2.New,
-		urn2.URN: urn2.New,
+	Children = children.Registry{
+		url.URL: url.New,
+		urn.URN: urn.New,
 	}
 )
 
 // Box is ISOBMFF dref box type
 type Box struct {
-	base2.Box
+	base.Box
 	Version    uint8
 	Flags      uint32
 	EntryCount uint32
-	Children   []box2.Boxed
+	Children   []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, 0, 0, 0, make([]box2.Boxed, 0)}
+func New(i *box.Info) box.Boxed {
+	return &Box{
+		base.Box{BoxInfo: i},
+		0,
+		0,
+		0,
+		make([]box.Boxed, 0),
+	}
 }
 
 func (Box) Type() string {
@@ -51,7 +58,7 @@ func (b *Box) String() string {
 	)
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n----------->%s", c.String())
+		s += fmt.Sprintf("\n            %s", c.String())
 	}
 
 	return s
@@ -62,7 +69,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.Flags = binary.BigEndian.Uint32([]byte{0x00, src[1], src[2], src[3]})
 	b.EntryCount = binary.BigEndian.Uint32(src[4:8])
 
-	s := scanner2.New(bytes.NewReader(src[8:]))
+	s := scanner.New(bytes.NewReader(src[8:]))
 	found, err := s.ScanAllChildren(Children)
 	b.Children = found
 

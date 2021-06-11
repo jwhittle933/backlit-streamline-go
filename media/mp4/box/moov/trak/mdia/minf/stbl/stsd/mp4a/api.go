@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
-	esds2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd/mp4a/esds"
-	sample2 "github.com/jwhittle933/streamline/media/mp4/box/sample"
-	scanner2 "github.com/jwhittle933/streamline/media/mp4/box/scanner"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd/mp4a/esds"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
@@ -17,24 +18,22 @@ const (
 )
 
 var (
-	Children = children2.Registry{
-		esds2.ESDS: esds2.New,
-	}
+	Children = children.Registry{esds.ESDS: esds.New}
 )
 
 type Box struct {
-	sample2.Audio
-	Children []box2.Boxed
+	sample.Audio
+	Children []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
+func New(i *box.Info) box.Boxed {
 	return &Box{
-		sample2.Audio{
-			Entry: sample2.Entry{
-				Box: base2.Box{BoxInfo: i},
+		sample.Audio{
+			Entry: sample.Entry{
+				Box: base.Box{BoxInfo: i},
 			},
 		},
-		make([]box2.Boxed, 0),
+		make([]box.Boxed, 0),
 	}
 }
 
@@ -51,7 +50,7 @@ func (b *Box) String() string {
 	)
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n------------->%s", c.String())
+		s += fmt.Sprintf("\n              %s", c.String())
 	}
 
 	return s
@@ -63,7 +62,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	// skip 6 for _reserved
 	b.ChannelCount = binary.BigEndian.Uint16(src[10:12])
 
-	s := scanner2.New(bytes.NewReader(src[28:]))
+	s := scanner.New(bytes.NewReader(src[28:]))
 	found, err := s.ScanAllChildren(Children)
 
 	b.Children = found

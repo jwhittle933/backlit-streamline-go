@@ -4,15 +4,16 @@ package minf
 import (
 	"bytes"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
-	dinf2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf"
-	smhd2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/smhd"
-	stbl2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl"
-	sthd2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/sthd"
-	vmhd2 "github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/vmhd"
-	scanner2 "github.com/jwhittle933/streamline/media/mp4/box/scanner"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/smhd"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/sthd"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/vmhd"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
@@ -20,22 +21,22 @@ const (
 )
 
 var (
-	Children = children2.Registry{
-		dinf2.DINF: dinf2.New,
-		smhd2.SMHD: smhd2.New,
-		stbl2.STBL: stbl2.New,
-		sthd2.STHD: sthd2.New,
-		vmhd2.VMHD: vmhd2.New,
+	Children = children.Registry{
+		dinf.DINF: dinf.New,
+		smhd.SMHD: smhd.New,
+		stbl.STBL: stbl.New,
+		sthd.STHD: sthd.New,
+		vmhd.VMHD: vmhd.New,
 	}
 )
 
 type Box struct {
-	base2.Box
-	Children []box2.Boxed
+	base.Box
+	Children []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, make([]box2.Boxed, 0)}
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
@@ -46,14 +47,14 @@ func (b *Box) String() string {
 	s := fmt.Sprintf("%s, boxes=%d", b.Info().String(), len(b.Children))
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n------->%s", c.String())
+		s += fmt.Sprintf("\n        %s", c.String())
 	}
 
 	return s
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	s := scanner2.New(bytes.NewReader(src))
+	s := scanner.New(bytes.NewReader(src))
 
 	var err error
 	b.Children, err = s.ScanAllChildren(Children)
