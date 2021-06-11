@@ -3,9 +3,10 @@ package pasp
 import (
 	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	sample2 "github.com/jwhittle933/streamline/media/mp4/box/sample"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample"
 )
 
 const (
@@ -13,14 +14,14 @@ const (
 )
 
 type Box struct {
-	sample2.PixelAspectRatio
+	sample.PixelAspectRatio
 	raw []byte
 }
 
-func New(i *box2.Info) box2.Boxed {
+func New(i *box.Info) box.Boxed {
 	return &Box{
-		sample2.PixelAspectRatio{
-			Box:      base2.Box{BoxInfo: i},
+		sample.PixelAspectRatio{
+			Box:      base.Box{BoxInfo: i},
 			HSpacing: 0,
 			VSpacing: 0,
 		},
@@ -33,11 +34,7 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	return b.Info().String() + fmt.Sprintf(
-		", horiz_spacing=%d, vert_spacing=%d",
-		b.HSpacing,
-		b.VSpacing,
-	)
+	return fmt.Sprintf("%s, horiz_spacing=%d, vert_spacing=%d", b.Info(), b.HSpacing, b.VSpacing)
 }
 
 func (b *Box) Write(src []byte) (int, error) {
