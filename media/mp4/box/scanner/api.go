@@ -3,17 +3,18 @@ package scanner
 import (
 	"bytes"
 	"encoding/binary"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	boxtype2 "github.com/jwhittle933/streamline/media/mp4/box/boxtype"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
 	"io"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/boxtype"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
 )
 
 type Scanner interface {
-	ScanAllChildren(knownChildren children2.Registry) ([]box2.Boxed, error)
-	ScanFor(knownChildren children2.Registry) (box2.Boxed, error)
-	ScanInfo(i *box2.Info) error
-	SeekPayload(info *box2.Info) (int64, error)
+	ScanAllChildren(knownChildren children.Registry) ([]box.Boxed, error)
+	ScanFor(knownChildren children.Registry) (box.Boxed, error)
+	ScanInfo(i *box.Info) error
+	SeekPayload(info *box.Info) (int64, error)
 }
 
 type scanner struct {
@@ -24,10 +25,10 @@ func New(r io.ReadSeeker) Scanner {
 	return &scanner{r}
 }
 
-func (s *scanner) ScanAllChildren(knownChildren children2.Registry) ([]box2.Boxed, error) {
-	found := make([]box2.Boxed, 0)
+func (s *scanner) ScanAllChildren(knownChildren children.Registry) ([]box.Boxed, error) {
+	found := make([]box.Boxed, 0)
 
-	var child box2.Boxed
+	var child box.Boxed
 	var err error
 	for {
 		child, err = s.ScanFor(knownChildren)
@@ -45,8 +46,8 @@ func (s *scanner) ScanAllChildren(knownChildren children2.Registry) ([]box2.Boxe
 	return found, err
 }
 
-func (s *scanner) ScanFor(knownChildren children2.Registry) (box2.Boxed, error) {
-	i := &box2.Info{}
+func (s *scanner) ScanFor(knownChildren children.Registry) (box.Boxed, error) {
+	i := &box.Info{}
 	err := s.ScanInfo(i)
 
 	if err != nil {
@@ -63,14 +64,14 @@ func (s *scanner) ScanFor(knownChildren children2.Registry) (box2.Boxed, error) 
 	return child, nil
 }
 
-func (s *scanner) ScanInfo(i *box2.Info) error {
+func (s *scanner) ScanInfo(i *box.Info) error {
 	off, err := s.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return err
 	}
 
 	i.Offset = uint64(off)
-	i.HeaderSize = box2.SmallHeader
+	i.HeaderSize = box.SmallHeader
 
 	buf := bytes.NewBuffer(make([]byte, 0, i.HeaderSize))
 	if _, err := io.CopyN(buf, s, int64(i.HeaderSize)); err != nil {
@@ -79,7 +80,7 @@ func (s *scanner) ScanInfo(i *box2.Info) error {
 
 	data := buf.Bytes()
 	i.Size = uint64(binary.BigEndian.Uint32(data))
-	i.Type = boxtype2.New([4]byte{data[4], data[5], data[6], data[7]})
+	i.Type = boxtype.New([4]byte{data[4], data[5], data[6], data[7]})
 
 	if i.Size == 0 {
 		off, _ = s.Seek(0, io.SeekEnd)
@@ -93,7 +94,7 @@ func (s *scanner) ScanInfo(i *box2.Info) error {
 	}
 
 	if i.Size == 1 {
-		headerSize := box2.LargeHeader - box2.SmallHeader
+		headerSize := box.LargeHeader - box.SmallHeader
 		buf.Reset()
 		if _, err := io.CopyN(buf, s, int64(headerSize)); err != nil {
 			return err
@@ -108,6 +109,6 @@ func (s *scanner) ScanInfo(i *box2.Info) error {
 	return nil
 }
 
-func (s *scanner) SeekPayload(info *box2.Info) (int64, error) {
+func (s *scanner) SeekPayload(info *box.Info) (int64, error) {
 	return s.Seek(int64(info.Offset+info.HeaderSize), io.SeekStart)
 }

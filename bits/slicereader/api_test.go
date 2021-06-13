@@ -28,7 +28,41 @@ func TestReader_Skip(t *testing.T) {
 }
 
 func TestReader_Slice(t *testing.T) {
-	//
+	tests := []struct {
+		name     string
+		readLen  int
+		expected []byte
+		setup    func() *Reader
+	}{
+		{
+			name:     "Slice(3) should return the first 3 bytes",
+			readLen:  3,
+			expected: []byte{1, 255, 31},
+			setup: func() *Reader {
+				return New([]byte{1, 255, 31, 30, 2, 22})
+			},
+		},
+		{
+			name:     "Slice(3) after 1 byte read should return [1:4]",
+			readLen:  3,
+			expected: []byte{255, 31, 30},
+			setup: func() *Reader {
+				sr := New([]byte{1, 255, 31, 30, 2, 22})
+				sr.Uint8()
+
+				return sr
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			sr := test.setup()
+			actual := sr.Slice(test.readLen)
+
+			assert.Equal(t, test.expected, actual)
+		})
+	}
 }
 
 func TestReader_String(t *testing.T) {

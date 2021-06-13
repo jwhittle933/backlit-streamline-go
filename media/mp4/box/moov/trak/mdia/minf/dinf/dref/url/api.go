@@ -1,10 +1,11 @@
 package url
 
 import (
-	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -13,15 +14,14 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	Version  uint8
 	Flags    uint32
 	Location string
-	raw      []byte
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, 0, 0, "", make([]byte, 0)}
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, 0, 0, ""}
 }
 
 func (Box) Type() string {
@@ -38,13 +38,15 @@ func (b *Box) String() string {
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	b.Version = src[0]
-	b.Flags = binary.BigEndian.Uint32([]byte{0x00, src[1], src[2], src[3]})
+	sr := slicereader.New(src)
+	versionAndFlags := sr.Uint32()
+
+	b.Version = byte(versionAndFlags >> 24)
+	b.Flags = versionAndFlags & box.FlagsMask
 
 	if b.Flags&SelfContained > 0 {
-		b.Location = string(src[4:])
+		b.Location = sr.String(sr.Length()-1)
 	}
 
-	b.raw = src
 	return len(src), nil
 }

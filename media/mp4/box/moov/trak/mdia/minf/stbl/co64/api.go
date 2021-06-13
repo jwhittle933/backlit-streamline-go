@@ -1,24 +1,21 @@
-package stss
+package co64
 
 import (
-	"encoding/binary"
 	"fmt"
-
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
-	STSS string = "stss"
+	CO64 string = "co64"
 )
 
 type Box struct {
 	base.Box
-	Version      byte
-	Flags        uint32
-	SampleCount  uint32
-	SampleNumber []uint32
+	Version     byte
+	Flags       uint32
+	ChunkOffset []uint64
 }
 
 func New(i *box.Info) box.Boxed {
@@ -26,29 +23,35 @@ func New(i *box.Info) box.Boxed {
 		base.Box{BoxInfo: i},
 		0,
 		0,
-		0,
-		make([]uint32, 0, 0),
+		make([]uint64, 0),
 	}
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf("%s", b.Info())
+	return fmt.Sprintf(
+		"%s, version=%d, flags=%d, chuckoffset=%+v",
+		b.Info(),
+		b.Version,
+		b.Flags,
+		b.ChunkOffset,
+	)
 }
 
 func (Box) Type() string {
-	return STSS
+	return CO64
 }
 
 func (b *Box) Write(src []byte) (int, error) {
 	sr := slicereader.New(src)
 	versionAndFlags := sr.Uint32()
+	nrEntries := sr.Uint32()
+
 	b.Version = byte(versionAndFlags >> 24)
 	b.Flags = versionAndFlags & box.FlagsMask
-	b.SampleCount = sr.Uint32()
-	b.SampleNumber = make([]uint32, b.SampleCount)
 
-	for i := 0; i < len(b.SampleNumber); i++ {
-		b.SampleNumber = append(b.SampleNumber, binary.BigEndian.Uint32(src[(8+4*i):(12+4*i)]))
+	b.ChunkOffset = make([]uint64, nrEntries)
+	for i := uint32(0); i < nrEntries; i++ {
+		b.ChunkOffset[i] = sr.Uint64()
 	}
 
 	return box.FullRead(len(src))

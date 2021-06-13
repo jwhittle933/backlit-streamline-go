@@ -2,8 +2,10 @@
 package stco
 
 import (
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+	"encoding/binary"
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -12,13 +14,21 @@ const (
 
 // Box (stco) stores meta-data about video frames
 type Box struct {
-	base2.Box
+	base.Box
+	Version     byte
+	Flags       uint32
 	EntryCount  uint32
 	ChunkOffset []uint32
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, 0, make([]uint32, 0)}
+func New(i *box.Info) box.Boxed {
+	return &Box{
+		base.Box{BoxInfo: i},
+		0,
+		0,
+		0,
+		make([]uint32, 0),
+	}
 }
 
 func (Box) Type() string {
@@ -30,5 +40,15 @@ func (b *Box) String() string {
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+	sr := slicereader.New(src)
+	versionAndFlags := sr.Uint32()
+	b.Version = byte(versionAndFlags >> 24)
+	b.Flags = versionAndFlags & box.FlagsMask
+	b.EntryCount = sr.Uint32()
+
+	for i := uint32(0); i < b.EntryCount; i++ {
+		b.ChunkOffset = append(b.ChunkOffset, binary.BigEndian.Uint32(src[(8+4*i):(12+4*i)]))
+	}
+
+	return box.FullRead(len(src))
 }

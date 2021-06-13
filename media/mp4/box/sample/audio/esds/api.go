@@ -1,9 +1,11 @@
 package esds
 
 import (
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	descriptor2 "github.com/jwhittle933/streamline/media/mp4/box/sample/audio/esds/descriptor"
+	"errors"
+	"fmt"
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -16,12 +18,46 @@ const (
 
 // Box is ES Descriptor Box
 type Box struct {
-	base2.Box
-	Descriptors []descriptor2.Descriptor
+	base.Box
+	Version               byte
+	Flags                 uint32
+	EsDescrTag            byte
+	EsID                  uint16
+	FlagsAndPriority      byte
+	DecoderConfigDescrTag byte
+	ObjectType            byte
+	StreamType            byte
+	BufferSizeDB          uint32
+	MaxBitrate            uint32
+	AvgBitrate            uint32
+	DecSpecificInfoTag    byte
+	DecConfig             []byte
+	SLConfigDescrTag      byte
+	SLConfigValue         byte
+	nrExtraSizeBytes      int
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, make([]descriptor2.Descriptor, 0)}
+// New returns a new zeroed Box
+func New(i *box.Info) box.Boxed {
+	return &Box{
+		base.Box{BoxInfo: i},
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		make([]byte, 0),
+		0,
+		0,
+		0,
+	}
 }
 
 func (Box) Type() string {
@@ -29,9 +65,83 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	return b.Info().String() + ", status=\033[35mINCOMPLETE\033[0m"
+	return fmt.Sprintf(
+		"%s, version=%d, flags=%d, esdesctag=%d, esid=%d, flags_priority=%d, decoder_config_desc_tag=%d, objecttype=%d, streamtype=%d, buffersizedb=%d, maxbitrate=%d, avgbitrate=%d, decconfig=%+v, slconfigdesctag=%d, slconfig=%d, extrabytes=%d",
+		b.Info(),
+		b.Version,
+		b.Flags,
+		b.EsDescrTag,
+		b.EsID,
+		b.FlagsAndPriority,
+		b.DecoderConfigDescrTag,
+		b.ObjectType,
+		b.StreamType,
+		b.BufferSizeDB,
+		b.MaxBitrate,
+		b.AvgBitrate,
+		b.DecConfig,
+		b.SLConfigDescrTag,
+		b.SLConfigValue,
+		b.nrExtraSizeBytes,
+	)
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+	sr := slicereader.New(src)
+
+	versionAndFlags := sr.Uint32()
+	b.Version = byte(versionAndFlags >> 24)
+	b.Flags = versionAndFlags & box.FlagsMask
+	b.EsDescrTag = sr.Uint8()
+
+	_, bytesRead := b.sizeOfInstance(sr)
+	b.nrExtraSizeBytes += bytesRead - 1
+
+	b.EsID = sr.Uint16()
+	b.FlagsAndPriority = sr.Uint8()
+	b.DecoderConfigDescrTag = sr.Uint8()
+
+	_, bytesRead = b.sizeOfInstance(sr)
+	b.nrExtraSizeBytes += bytesRead - 1
+
+	b.ObjectType = sr.Uint8()
+
+	streamTypeAndBufferSizeDB := sr.Uint32()
+	b.StreamType = byte(streamTypeAndBufferSizeDB >> 24)
+	b.BufferSizeDB = streamTypeAndBufferSizeDB & 0xffffff
+	b.MaxBitrate = sr.Uint32()
+	b.AvgBitrate = sr.Uint32()
+	b.DecSpecificInfoTag = sr.Uint8()
+	size, bytesRead := b.sizeOfInstance(sr)
+	b.nrExtraSizeBytes += bytesRead
+	b.DecConfig = sr.Slice(size)
+	b.SLConfigDescrTag = sr.Uint8()
+
+	size, bytesRead = b.sizeOfInstance(sr)
+	b.nrExtraSizeBytes += bytesRead
+	if size != 1 {
+		return len(src), errors.New("cannot handle SlConfigDescr not equal to 1 byte")
+	}
+
+	b.SLConfigValue = sr.Uint8()
+
+	return box.FullRead(len(src))
+}
+
+func (b Box) sizeOfInstance(sr *slicereader.Reader) (int, int) {
+	tmp := sr.Uint8()
+	nrBytesRead := 1
+	sizeOfInstance := int(tmp & 0x7f)
+
+	for {
+		if (tmp >> 7) == 0 {
+			break
+		}
+
+		tmp = sr.Uint8()
+		nrBytesRead++
+		sizeOfInstance = sizeOfInstance<<7 | int(tmp&0x7f)
+	}
+
+	return sizeOfInstance, nrBytesRead
 }

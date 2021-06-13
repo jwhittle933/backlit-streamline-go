@@ -4,9 +4,13 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 )
 
-var ErrorSliceRead = errors.New("read too far in SliceReader")
+var (
+	ErrorSliceRead  = errors.New("read too far in SliceReader")
+	ErrorSeekTooFar = errors.New("seek requested beyond length of reader")
+)
 
 type Reader struct {
 	slice []byte
@@ -108,7 +112,7 @@ func (r *Reader) Slice(n int) []byte {
 		return []byte{}
 	}
 
-	ret := r.slice[r.pos:n]
+	ret := r.slice[r.pos : r.pos+n]
 	r.pos += n
 
 	return ret
@@ -172,6 +176,69 @@ func (r *Reader) Error() error {
 
 func (r *Reader) EOF() bool {
 	return r.pos == len(r.slice)-1
+}
+
+// Seek satisfies the io.Seeker interface
+func (r *Reader) Seek(offset int64, whence int) (int64, error) {
+	if offset < 0 {
+		return 0, errors.New("negative offset")
+	}
+
+	switch whence {
+	case io.SeekStart:
+		if int(offset) > r.Length() {
+			return 0, ErrorSeekTooFar
+		}
+
+		r.pos = int(offset)
+		return offset, nil
+	case io.SeekCurrent:
+		if int(offset)+r.pos > r.Length() {
+			return 0, ErrorSeekTooFar
+		}
+
+		r.pos += int(offset)
+		return int64(r.pos), nil
+	case io.SeekEnd:
+		if int(offset) > r.Length() {
+			return 0, ErrorSeekTooFar
+		}
+
+		r.pos = r.Length() - int(offset)
+		return int64(r.pos), nil
+	default:
+		return 0, fmt.Errorf("unknown seek start: %d", whence)
+	}
+}
+
+// Read satisfies the io.Reader interface
+func (r *Reader) Read(p []byte) (int, error) {
+	copy(p, r.Slice(len(p)))
+
+	if r.Error() != nil {
+		return 0, r.Error()
+	}
+
+	return len(p), nil
+}
+
+// ReadAt satisfies the io.ReaderAt interface
+// ReadAt will adjust the reader's position to `off`,
+// read `len(p)` bytes from the underlying reader,
+// and reapply the readers original position
+func (r *Reader) ReadAt(p []byte, off int64) (int, error) {
+	originalPosition := r.pos
+
+	if _, err := r.Seek(off, io.SeekStart); err != nil {
+		return 0, err
+	}
+
+	if  _, err := r.Read(p); err != nil {
+		return 0, err
+	}
+
+	r.pos = originalPosition
+	return len(p), nil
 }
 
 func (r *Reader) checkLen(max int) {

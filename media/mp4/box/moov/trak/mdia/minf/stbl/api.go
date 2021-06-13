@@ -4,6 +4,8 @@ package stbl
 import (
 	"bytes"
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/co64"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/ctts"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
@@ -27,6 +29,8 @@ var (
 		stsd.STSD: stsd.New,
 		stsz.STSZ: stsz.New,
 		stts.STTS: stts.New,
+		co64.CO64: co64.New,
+		ctts.CTTS: ctts.New,
 	}
 )
 
@@ -45,7 +49,7 @@ func (Box) Type() string {
 
 func (b *Box) String() string {
 	s := fmt.Sprintf(
-		"%s, boxes=%d, status=\033[35mINCOMPLETE\033[0m",
+		"%s, children=%d",
 		b.Info(),
 		len(b.Children),
 	)

@@ -1,14 +1,14 @@
 package base
 
 import (
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box"
 )
 
 type Box struct {
-	BoxInfo *box2.Info
+	BoxInfo *box.Info
 }
 
 // Info satisfies the box.Informed interface
-func (b *Box) Info() *box2.Info {
+func (b *Box) Info() *box.Info {
 	return b.BoxInfo
 }
