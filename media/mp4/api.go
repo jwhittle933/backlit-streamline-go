@@ -3,6 +3,7 @@ package mp4
 
 import (
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -42,37 +43,47 @@ func New(r io.ReadSeeker) (*MP4, error) {
 	return res.Ok().(*MP4), res.Err()
 }
 
-func (mp4 *MP4) Offset() (int64, error) {
-	return mp4.r.Seek(0, io.SeekCurrent)
+func (m *MP4) Offset() (int64, error) {
+	return m.r.Seek(0, io.SeekCurrent)
 }
 
 // Read satisfies io.Reader interface
-func (mp4 *MP4) Read(p []byte) (int, error) {
-	return mp4.r.Read(p)
+func (m *MP4) Read(p []byte) (int, error) {
+	return m.r.Read(p)
 }
 
 // Seek satisfies the io.Seeker interface
-func (mp4 *MP4) Seek(offset int64, whence int) (int64, error) {
-	return mp4.r.Seek(int64(mp4.Size), whence)
+func (m *MP4) Seek(offset int64, whence int) (int64, error) {
+	return m.r.Seek(int64(m.Size), whence)
+}
+
+func (m *MP4) String() string {
+	s := fmt.Sprintf("[\033[1;35mmp4\033[0m] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
+
+	for _, b := range m.Boxes {
+		s += b.String()
+	}
+
+	return s
 }
 
 // JSON encodes mp4 to JSON representation
-func (mp4 *MP4) JSON() string {
+func (m *MP4) JSON() string {
 	return "(*MP4).JSON() unimplemented"
 }
 
 // Hex hex dumps the mp4
-func (mp4 *MP4) Hex() string {
-	src, _ := ioutil.ReadAll(mp4)
+func (m *MP4) Hex() string {
+	src, _ := ioutil.ReadAll(m)
 
 	return hex.Dump(src)
 }
 
 // ReadNext reads and returns the next Box from
 // the mp4's underlying reader
-func (mp4 *MP4) ReadNext() (box.Boxed, error) {
+func (m *MP4) ReadNext() (box.Boxed, error) {
 	bi := &box.Info{}
-	err := box.ScanInfo(mp4, bi)
+	err := box.ScanInfo(m, bi)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +97,7 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 	b := boxFactory(bi)
 
 	// copy bytes starting at offset until Size - HeaderSize
-	if _, err := io.CopyN(b, mp4, int64(bi.Size-bi.HeaderSize)); err != nil {
+	if _, err := io.CopyN(b, m, int64(bi.Size-bi.HeaderSize)); err != nil {
 		return nil, err
 	}
 
@@ -97,12 +108,12 @@ func (mp4 *MP4) ReadNext() (box.Boxed, error) {
 // from the mp4's underlying reader, and passes
 // reading responsibility for each box's children
 // to the Box
-func (mp4 *MP4) ReadAll() error {
+func (m *MP4) ReadAll() error {
 	var b box.Boxed
 	var err error
 
 	for {
-		b, err = mp4.ReadNext()
+		b, err = m.ReadNext()
 		if err == io.EOF {
 			return nil
 		}
@@ -111,7 +122,7 @@ func (mp4 *MP4) ReadAll() error {
 			break
 		}
 
-		mp4.Boxes = append(mp4.Boxes, b)
+		m.Boxes = append(m.Boxes, b)
 	}
 
 	return err
@@ -126,6 +137,6 @@ func (mp4 *MP4) ReadAll() error {
 //    are not set to 0
 // 4. The Movie Extends box (mvex) is not located in the Movie Box (moov) to indicate that
 //    Movie Fragments are to be expected
-func (mp4 *MP4) Valid() bool {
+func (m *MP4) Valid() bool {
 	return true
 }

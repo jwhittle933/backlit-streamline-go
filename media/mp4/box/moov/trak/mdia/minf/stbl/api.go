@@ -4,18 +4,19 @@ package stbl
 import (
 	"bytes"
 	"fmt"
-	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/co64"
-	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/ctts"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/co64"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/ctts"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stco"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsc"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsz"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stts"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/subs"
 )
 
 const (
@@ -31,6 +32,7 @@ var (
 		stts.STTS: stts.New,
 		co64.CO64: co64.New,
 		ctts.CTTS: ctts.New,
+		subs.SUBS: subs.New,
 	}
 )
 

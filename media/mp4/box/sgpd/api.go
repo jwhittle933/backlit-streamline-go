@@ -9,6 +9,8 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/alst"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/rap"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/roll"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/seig"
 )
@@ -21,6 +23,8 @@ var (
 	GroupEntries = children.Registry{
 		seig.SEIG: seig.New,
 		roll.ROLL: roll.New,
+		rap.RAP:   rap.New,
+		alst.ALST: alst.New,
 	}
 )
 
