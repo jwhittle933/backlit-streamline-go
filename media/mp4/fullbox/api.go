@@ -21,9 +21,9 @@ func New(i *box.Info) *Box {
 }
 
 func (b *Box) WriteVersionAndFlags(sr *slicereader.Reader) {
-	versionAndFlags := sr.Uint32()
-	b.Version = byte(versionAndFlags >> 24)
-	b.Flags = versionAndFlags & FlagsMask
+	version, flags := VersionAndFlags(sr.Uint32())
+	b.Version = version
+	b.Flags = flags
 }
 
 func VersionAndFlags(vf uint32) (byte, uint32) {

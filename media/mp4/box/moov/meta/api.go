@@ -2,10 +2,16 @@
 package meta
 
 import (
+	"bytes"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
+
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/ilst"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/hdlr"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -13,33 +19,50 @@ const (
 )
 
 var (
-	Children = children2.Registry{}
+	Children = children.Registry{
+		hdlr.HDLR: hdlr.New,
+		ilst.ILST: ilst.New,
+	}
 )
 
 // Box is ISO BMFF meta box type
 type Box struct {
-	base2.Box
+	fullbox.Box
+	Children []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}}
+func New(i *box.Info) box.Boxed {
+	return &Box{*fullbox.New(i), make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
 	return META
 }
 
-func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+func (b *Box) String() string {
+	s := fmt.Sprintf(
+		"%s",
+		b.Info(),
+	)
+
+	for _, c := range b.Children {
+		s += fmt.Sprintf("\n      %s", c)
+	}
+
+	return s
 }
 
-func (b *Box) String() string {
-	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		string(b.BoxInfo.Type.String()),
-		b.BoxInfo.Type.HexString(),
-		b.BoxInfo.Offset,
-		b.BoxInfo.Size,
-		b.BoxInfo.HeaderSize,
-	)
+func (b *Box) Write(src []byte) (int, error) {
+	sr := slicereader.New(src)
+	b.WriteVersionAndFlags(sr)
+
+	s := scanner.New(bytes.NewReader(sr.Remaining()))
+
+	var err error
+	b.Children, err = s.ScanAllChildren(Children)
+	if err != nil {
+		return 0, err
+	}
+
+	return box.FullRead(len(src))
 }

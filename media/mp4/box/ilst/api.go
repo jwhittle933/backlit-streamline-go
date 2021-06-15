@@ -1,42 +1,52 @@
 package ilst
 
+import (
+	"bytes"
+	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/ilst/CToo"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+)
+
 const (
 	ILST     string = "ilst"
-	IlstDash string = "----"
-	IlstaART string = "aART"
-	IlstAkID string = "akID"
-	IlstApID string = "apID"
-	IlstAtID string = "atID"
-	IlstCmID string = "cmID"
-	IlstCovr string = "covr"
-	IlstCpil string = "cpil"
-	IlstCprt string = "cprt"
-	IlstDesc string = "desc"
-	IlstDisk string = "disk"
-	IlstEgid string = "egid"
-	IlstGeID string = "geID"
-	IlstGnre string = "gnre"
-	IlstPcst string = "pcst"
-	IlstPgap string = "pgap"
-	IlstPlID string = "plID"
-	IlstPurd string = "purd"
-	IlstPurl string = "purl"
-	IlstRtng string = "rtng"
-	IlstSfID string = "sfid"
-	IlstSoaa string = "soaa"
-	IlstSoal string = "soal"
-	IlstSoar string = "soar"
-	IlstSoco string = "soco"
-	IlstSonm string = "sonm"
-	IlstSosn string = "sosn"
-	IlstStik string = "stik"
-	IlstTmpo string = "tmpo"
-	IlstTrkn string = "trkn"
-	IlstTven string = "tven"
-	IlstTves string = "tves"
-	IlstTvnn string = "tvnn"
-	IlstTvsh string = "tvsh"
-	IlstTvsn string = "tvsn"
+	Dash string = "----"
+	ART string = "aART"
+	AkID string = "akID"
+	ApID string = "apID"
+	AtID string = "atID"
+	CmID string = "cmID"
+	Covr string = "covr"
+	Cpil string = "cpil"
+	Cprt string = "cprt"
+	Desc string = "desc"
+	Disk string = "disk"
+	Egid string = "egid"
+	GeID string = "geID"
+	Gnre string = "gnre"
+	Pcst string = "pcst"
+	Pgap string = "pgap"
+	PlID string = "plID"
+	Purd string = "purd"
+	Purl string = "purl"
+	Rtng string = "rtng"
+	SfID string = "sfid"
+	Soaa string = "soaa"
+	Soal string = "soal"
+	Soar string = "soar"
+	Soco string = "soco"
+	Sonm string = "sonm"
+	Sosn string = "sosn"
+	Stik string = "stik"
+	Tmpo string = "tmpo"
+	Trkn string = "trkn"
+	Tven string = "tven"
+	Tves string = "tves"
+	Tvnn string = "tvnn"
+	Tvsh string = "tvsh"
+	Tvsn string = "tvsn"
 )
 
 var (
@@ -52,10 +62,43 @@ var (
 	IlstWrt string = string([]byte{0xA9, 'w', 'r', 't'})
 )
 
+var (
+	Children = children.Registry{
+		CToo.CTOO: CToo.New,
+	}
+)
+
 type Box struct {
-	//
+	base.Box
+	Children []box.Boxed
+}
+
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
 	return ILST
+}
+
+func (b Box) String() string {
+	s := fmt.Sprintf("%s", b.Info())
+
+	for _, c := range b.Children {
+		s += fmt.Sprintf("\n        %s", c)
+	}
+
+	return s
+}
+
+func (b *Box) Write(src []byte) (int, error) {
+	s := scanner.New(bytes.NewReader(src))
+
+	var err error
+	b.Children, err = s.ScanAllChildren(Children)
+	if err != nil {
+		return 0, err
+	}
+
+	return box.FullRead(len(src))
 }

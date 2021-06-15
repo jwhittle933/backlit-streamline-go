@@ -15,6 +15,8 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsd"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stsz"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stts"
+	"github.com/jwhittle933/streamline/media/mp4/box/saio"
+	"github.com/jwhittle933/streamline/media/mp4/box/saiz"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"github.com/jwhittle933/streamline/media/mp4/box/subs"
 )
@@ -33,6 +35,8 @@ var (
 		co64.CO64: co64.New,
 		ctts.CTTS: ctts.New,
 		subs.SUBS: subs.New,
+		saiz.SAIZ: saiz.New,
+		saio.SAIO: saiz.New,
 	}
 )
 

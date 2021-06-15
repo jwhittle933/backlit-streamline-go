@@ -2,21 +2,35 @@
 package moof
 
 import (
+	"bytes"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof/mfhd"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
 	MOOF string = "moof"
 )
 
+var (
+	Children = children.Registry{
+		mfhd.MFHD: mfhd.New,
+		traf.TRAF: traf.New,
+	}
+)
+
 type Box struct {
-	base2.Box
+	base.Box
+	Children []box.Boxed
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}}
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
@@ -24,17 +38,27 @@ func (Box) Type() string {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf(
-		"[%s] hex=%s, offset=%d, size=%d, header=%d",
-		string(b.BoxInfo.Type.String()),
-		b.BoxInfo.Type.HexString(),
-		b.BoxInfo.Offset,
-		b.BoxInfo.Size,
-		b.BoxInfo.HeaderSize,
+	s := fmt.Sprintf(
+		"%s",
+		b.Info(),
 	)
+
+	for _, c := range b.Children {
+		s += fmt.Sprintf("\n  %s", c)
+	}
+
+	return s
 }
 
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+	s := scanner.New(bytes.NewReader(src))
+
+	var err error
+	b.Children, err = s.ScanAllChildren(Children)
+	if err != nil {
+		return 0, err
+	}
+
+	return box.FullRead(len(src))
 }

@@ -2,8 +2,11 @@
 package stts
 
 import (
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+	"encoding/binary"
+	"fmt"
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -11,9 +14,9 @@ const (
 )
 
 type Box struct {
-	base2.Box
-	EntryCount uint32
-	Entries    []Entry
+	fullbox.Box
+	SampleCount     []uint32
+	SampleTimeDelta []uint32
 }
 
 type Entry struct {
@@ -21,8 +24,8 @@ type Entry struct {
 	SampleDelta uint32
 }
 
-func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, 0, make([]Entry, 0)}
+func New(i *box.Info) box.Boxed {
+	return &Box{*fullbox.New(i), make([]uint32, 0, 0), make([]uint32, 0, 0)}
 }
 
 func (Box) Type() string {
@@ -30,9 +33,26 @@ func (Box) Type() string {
 }
 
 func (b *Box) String() string {
-	return b.Info().String()
+	return fmt.Sprintf(
+		"%s, samplecount=%d, samplecounts=%+v, sampledeltas=%+v",
+		b.Info(),
+		len(b.SampleCount),
+		b.SampleCount,
+		b.SampleTimeDelta,
+	)
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+	sr := slicereader.New(src)
+	b.WriteVersionAndFlags(sr)
+
+	count := sr.Uint32()
+	b.SampleCount = make([]uint32, 0, count)
+	b.SampleTimeDelta = make([]uint32, 0, count)
+	for i := 0; i < len(b.SampleCount); i++ {
+		b.SampleCount[i] = binary.BigEndian.Uint32(src[(8 + 8*i):(12 + 8*i)])
+		b.SampleTimeDelta[i] = binary.BigEndian.Uint32(src[(12 + 8*i):(16 + 8*i)])
+	}
+
+	return box.FullRead(len(src))
 }
