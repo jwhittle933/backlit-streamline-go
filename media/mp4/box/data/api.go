@@ -2,6 +2,9 @@ package data
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/box"
+	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"strings"
 	"unicode"
 )
@@ -19,6 +22,7 @@ const (
 )
 
 type Box struct {
+	base.Box
 	EncodingType Encoding
 	Language     uint32
 	Data         []byte
@@ -26,18 +30,36 @@ type Box struct {
 
 type Encoding uint32
 
+func New(i *box.Info) box.Boxed {
+	return &Box{
+		base.Box{BoxInfo: i},
+		0,
+		0,
+		make([]byte, 0),
+	}
+}
+
 func (Box) Type() string {
 	return DATA
 }
 
 func (b Box) String() string {
+	return fmt.Sprintf(
+		"%s, encoding=%s, data=%s",
+		b.Info(),
+		b.EncodingType,
+		b.DataString(),
+	)
+}
+
+func (b Box) DataString() string {
 	if uint32(b.EncodingType) == StringUTF8 {
 		return fmt.Sprintf("\"%s\"", strings.Map(func(r rune) rune {
 			if unicode.IsGraphic(r) {
 				return r
 			}
 
-			return rune('.')
+			return '.'
 		}, string(b.Data)))
 	}
 
@@ -65,4 +87,14 @@ func (e Encoding) String() string {
 	}
 
 	return "Unknown"
+}
+
+func (b *Box) Write(src []byte) (int, error) {
+	sr := slicereader.New(src)
+
+	b.EncodingType = Encoding(sr.Uint32())
+	b.Language = sr.Uint32()
+	b.Data = sr.Remaining()
+
+	return box.FullRead(len(src))
 }

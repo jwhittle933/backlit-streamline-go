@@ -3,7 +3,6 @@ package moov
 import (
 	"bytes"
 	"fmt"
-	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/udta"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
@@ -16,6 +15,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/pssh"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/udta"
 )
 
 const (
@@ -24,13 +24,13 @@ const (
 
 var (
 	Children = children.Registry{
-		coin.COIN: coin.New,
-		free.FREE: free.New,
-		meta.META: meta.New,
-		mvex.MVEX: mvex.New,
-		mvhd.MVHD: mvhd.New,
-		pssh.PSSH: pssh.New,
-		trak.TRAK: trak.New,
+		coin.COIN:  coin.New,
+		free.FREE:  free.New,
+		meta.META:  meta.New,
+		mvex.MVEX:  mvex.New,
+		mvhd.MVHD:  mvhd.New,
+		pssh.PSSH:  pssh.New,
+		trak.TRAK:  trak.New,
 		udta.UDTA: udta.New,
 	}
 )

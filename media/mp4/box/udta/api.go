@@ -53,7 +53,6 @@ func (b Box) String() string {
 // Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
 	s := scanner.New(bytes.NewReader(src))
-	fmt.Println(string(src))
 
 	var err error
 	b.Children, err = s.ScanAllChildren(Children)

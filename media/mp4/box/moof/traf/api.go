@@ -8,7 +8,9 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf/tfdt"
 	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf/tfhd"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf/trun"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"github.com/jwhittle933/streamline/media/mp4/box/subs"
 )
@@ -21,6 +23,8 @@ var (
 	Children = children.Registry{
 		subs.SUBS: subs.New,
 		tfhd.TFHD: tfhd.New,
+		tfdt.TFDT: tfdt.New,
+		trun.TRUN: trun.New,
 	}
 )
 

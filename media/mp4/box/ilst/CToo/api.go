@@ -3,11 +3,12 @@ package CToo
 import (
 	"bytes"
 	"fmt"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
-	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/data"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
@@ -20,7 +21,7 @@ type Box struct {
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i},  make([]box.Boxed, 0)}
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
@@ -41,7 +42,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	s := scanner.New(bytes.NewReader(src))
 
 	var err error
-	b.Children, err = s.ScanAllChildren(children.Registry{})
+	b.Children, err = s.ScanAllChildren(children.Registry{data.DATA: data.New})
 	if err != nil {
 		return 0, err
 	}

@@ -38,6 +38,17 @@ type MP4 struct {
 }
 
 func New(r io.ReadSeeker) (*MP4, error) {
+	//size, err := r.Seek(0, io.SeekEnd)
+	//if err != nil {
+	//	fmt.Println(err.Error())
+	//	return nil, err
+	//}
+	//
+	//_, err = r.Seek(0, io.SeekStart)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
 	res := result.Wrap(&MP4{r: r, Size: 0, Boxes: make([]box.Boxed, 0)})
 
 	return res.Ok().(*MP4), res.Err()
@@ -61,7 +72,7 @@ func (m *MP4) String() string {
 	s := fmt.Sprintf("[\033[1;35mmp4\033[0m] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
 
 	for _, b := range m.Boxes {
-		s += b.String()
+		s += fmt.Sprintf("%s", b)
 	}
 
 	return s
