@@ -56,7 +56,23 @@ func New(i *box.Info) box.Boxed {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf("%s", b.Info())
+	s := fmt.Sprintf(
+		"%s, version=%d, flags=%d, groupingtype=%s, deflength=%d, defgroupdescindex=%d, entrycount=%d, desclengths=%+v",
+		b.Info(),
+		b.Version,
+		b.Flags,
+		b.GroupingType,
+		b.DefaultLength,
+		b.DefaultGroupDescriptionIndex,
+		b.EntryCount,
+		b.DescriptionLengths,
+	)
+
+	for _, c := range b.SampleGroupEntries {
+		s += fmt.Sprintf("\n            %s", c)
+	}
+
+	return s
 }
 
 func (Box) Type() string {
@@ -81,12 +97,13 @@ func (b *Box) Write(src []byte) (int, error) {
 
 	b.EntryCount = sr.Uint32()
 	b.DescriptionLengths = make([]uint32, b.EntryCount)
+	b.SampleGroupEntries = make([]groupentry.Sample, b.EntryCount)
 	for i := uint32(0); i < b.EntryCount; i++ {
-		descriptionLength := sr.Uint32()
+		descriptionLength := b.DefaultLength
 
 		if b.Version >= 1 && b.DefaultLength == 0 {
 			descriptionLength = sr.Uint32()
-			b.DescriptionLengths[i] = sr.Uint32()
+			b.DescriptionLengths[i] = descriptionLength
 		}
 
 		entry, err := groupentry.ScanEntry(
@@ -99,7 +116,7 @@ func (b *Box) Write(src []byte) (int, error) {
 			return 0, err
 		}
 
-		b.SampleGroupEntries = append(b.SampleGroupEntries, entry)
+		b.SampleGroupEntries[i] = entry
 	}
 
 	return box.FullRead(len(src))

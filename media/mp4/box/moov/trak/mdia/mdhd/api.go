@@ -4,8 +4,9 @@ package mdhd
 import (
 	"encoding/binary"
 	"fmt"
-	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
+
+	"github.com/jwhittle933/streamline/media/mp4/box"
 )
 
 const (
@@ -14,31 +15,27 @@ const (
 
 // Box is ISOBMFF mdhd box type
 type Box struct {
-	base2.Box
-	Version          uint8
-	Flags            uint32
+	fullbox.Box
 	CreationTime     uint64
 	ModificationTime uint64
 	Timescale        uint32
 	Duration         uint64
 	Pad              bool
-	Language         [3]byte
+	Language         [2]byte
 	LanguageCode     string
 	Predefined       uint16
 	raw              []byte
 }
 
-func New(i *box2.Info) box2.Boxed {
+func New(i *box.Info) box.Boxed {
 	return &Box{
-		base2.Box{BoxInfo: i},
-		0,
-		0,
+		*fullbox.New(i),
 		0,
 		0,
 		0,
 		0,
 		false,
-		[3]byte{},
+		[2]byte{},
 		"",
 		0,
 		make([]byte, 0),
@@ -51,7 +48,7 @@ func (Box) Type() string {
 
 func (b *Box) String() string {
 	return b.Info().String() + fmt.Sprintf(
-		", version=%d, flags=%d, creation=%d, modification=%d, timescale=%d, duration=%d, pad=%+v, language=%s",
+		", version=%d, flags=%d, creation=%d, modification=%d, timescale=%d, duration=%d, pad=%+v, lang=%d, language=%s",
 		b.Version,
 		b.Flags,
 		b.CreationTime,
@@ -59,6 +56,7 @@ func (b *Box) String() string {
 		b.Timescale,
 		b.Duration,
 		b.Pad,
+		b.Language,
 		b.LanguageCode,
 	)
 }

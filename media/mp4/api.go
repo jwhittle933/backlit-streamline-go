@@ -4,6 +4,9 @@ package mp4
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/box/emsg"
+	"github.com/jwhittle933/streamline/media/mp4/box/mfra"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"io"
 	"io/ioutil"
 
@@ -17,7 +20,6 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
 	"github.com/jwhittle933/streamline/media/mp4/box/styp"
 	"github.com/jwhittle933/streamline/media/mp4/box/unknown"
-	"github.com/jwhittle933/streamline/result"
 )
 
 var Children = children.Registry{
@@ -28,7 +30,8 @@ var Children = children.Registry{
 	styp.STYP: styp.New,
 	free.FREE: free.New,
 	sidx.SIDX: sidx.New,
-	//emsg.EMSG: emsg.New,
+	mfra.MFRA: mfra.New,
+	emsg.EMSG: emsg.New,
 }
 
 type MP4 struct {
@@ -44,14 +47,12 @@ func New(r io.ReadSeeker) (*MP4, error) {
 	//	return nil, err
 	//}
 	//
-	//_, err = r.Seek(0, io.SeekStart)
+	//off, err := r.Seek(0, io.SeekStart)
 	//if err != nil {
 	//	return nil, err
 	//}
-	//
-	res := result.Wrap(&MP4{r: r, Size: 0, Boxes: make([]box.Boxed, 0)})
 
-	return res.Ok().(*MP4), res.Err()
+	return &MP4{r: r, Size: 0, Boxes: make([]box.Boxed, 0)}, nil
 }
 
 func (m *MP4) Offset() (int64, error) {
@@ -93,8 +94,10 @@ func (m *MP4) Hex() string {
 // ReadNext reads and returns the next Box from
 // the mp4's underlying reader
 func (m *MP4) ReadNext() (box.Boxed, error) {
+	sc := scanner.New(m)
+
 	bi := &box.Info{}
-	err := box.ScanInfo(m, bi)
+	err := sc.ScanInfo(bi)
 	if err != nil {
 		return nil, err
 	}

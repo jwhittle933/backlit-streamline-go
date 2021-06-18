@@ -2,6 +2,7 @@ package sidx
 
 import (
 	"fmt"
+
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"

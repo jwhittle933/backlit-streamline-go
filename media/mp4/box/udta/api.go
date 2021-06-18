@@ -9,6 +9,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/meta"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/udta/loci"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 var (
 	Children = children.Registry{
 		meta.META: meta.New,
+		loci.LOCI: loci.New,
 	}
 )
 
@@ -47,7 +49,7 @@ func (b Box) String() string {
 	for _, c := range b.Children {
 		s += fmt.Sprintf("\n    %s", c)
 	}
-	 return  s
+	return s
 }
 
 // Write satisfies the io.Writer interface

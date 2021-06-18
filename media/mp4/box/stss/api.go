@@ -6,7 +6,7 @@ import (
 
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -14,25 +14,26 @@ const (
 )
 
 type Box struct {
-	base.Box
-	Version      byte
-	Flags        uint32
+	fullbox.Box
 	SampleCount  uint32
 	SampleNumber []uint32
 }
 
 func New(i *box.Info) box.Boxed {
 	return &Box{
-		base.Box{BoxInfo: i},
-		0,
-		0,
+		*fullbox.New(i),
 		0,
 		make([]uint32, 0, 0),
 	}
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf("%s", b.Info())
+	return fmt.Sprintf(
+		"%s, samplecount=%d, samplenumber=%+v",
+		b.Info(),
+		b.SampleCount,
+		b.SampleNumber,
+	)
 }
 
 func (Box) Type() string {
@@ -41,14 +42,12 @@ func (Box) Type() string {
 
 func (b *Box) Write(src []byte) (int, error) {
 	sr := slicereader.New(src)
-	versionAndFlags := sr.Uint32()
-	b.Version = byte(versionAndFlags >> 24)
-	b.Flags = versionAndFlags & box.FlagsMask
+	b.WriteVersionAndFlags(sr)
 	b.SampleCount = sr.Uint32()
 	b.SampleNumber = make([]uint32, b.SampleCount)
 
-	for i := 0; i < len(b.SampleNumber); i++ {
-		b.SampleNumber = append(b.SampleNumber, binary.BigEndian.Uint32(src[(8+4*i):(12+4*i)]))
+	for i := uint32(0); i < b.SampleCount; i++ {
+		b.SampleNumber[i] = binary.BigEndian.Uint32(src[(8+4*i):(12+4*i)])
 	}
 
 	return box.FullRead(len(src))

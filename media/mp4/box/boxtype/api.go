@@ -10,6 +10,10 @@ func New(code [4]byte) BoxType {
 	return BoxType{code[0], code[1], code[2], code[3]}
 }
 
+func FromString(name string) BoxType {
+	return New([4]byte{name[0], name[1], name[2], name[3]})
+}
+
 func (b BoxType) String() string {
 	return string(b[:])
 }

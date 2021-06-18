@@ -6,6 +6,7 @@ package mdat
 
 import (
 	"fmt"
+
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
@@ -14,14 +15,14 @@ const (
 	MDAT string = "mdat"
 )
 
-// Box is ISOBMFF mdat box type
+// Box is ISO BMFF mdat box type
 type Box struct {
 	base.Box
 	Data []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}, []byte{}}
+	return &Box{base.Box{BoxInfo: i}, make([]byte, 0)}
 }
 
 func (Box) Type() string {
@@ -34,5 +35,5 @@ func (b Box) String() string {
 
 func (b *Box) Write(src []byte) (int, error) {
 	b.Data = src
-	return len(src), nil
+	return box.FullRead(len(src))
 }

@@ -12,7 +12,7 @@ type Sample interface {
 
 func ScanEntry(name string, src []byte, factoryFn box.Factory) (Sample, error) {
 	b := factoryFn(&box.Info{
-		Type: boxtype.New([4]byte{name[0], name[1], name[2], name[3]}),
+		Type: boxtype.FromString(name),
 		Size: uint64(len(src)),
 	})
 

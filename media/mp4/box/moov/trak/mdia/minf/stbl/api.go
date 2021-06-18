@@ -17,7 +17,10 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stts"
 	"github.com/jwhittle933/streamline/media/mp4/box/saio"
 	"github.com/jwhittle933/streamline/media/mp4/box/saiz"
+	"github.com/jwhittle933/streamline/media/mp4/box/sbgp"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/sgpd"
+	"github.com/jwhittle933/streamline/media/mp4/box/stss"
 	"github.com/jwhittle933/streamline/media/mp4/box/subs"
 )
 
@@ -32,11 +35,14 @@ var (
 		stsd.STSD: stsd.New,
 		stsz.STSZ: stsz.New,
 		stts.STTS: stts.New,
+		stss.STSS: stss.New,
 		co64.CO64: co64.New,
 		ctts.CTTS: ctts.New,
 		subs.SUBS: subs.New,
 		saiz.SAIZ: saiz.New,
 		saio.SAIO: saiz.New,
+		sgpd.SGPD: sgpd.New,
+		sbgp.SBGP: sbgp.New,
 	}
 )
 
@@ -61,7 +67,7 @@ func (b *Box) String() string {
 	)
 
 	for _, c := range b.Children {
-		s += fmt.Sprintf("\n          %s", c.String())
+		s += fmt.Sprintf("\n          %s", c)
 	}
 
 	return s

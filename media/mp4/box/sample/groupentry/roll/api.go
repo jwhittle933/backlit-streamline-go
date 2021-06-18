@@ -29,7 +29,7 @@ func (Box) Type() string {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf("%s", b.Info())
+	return fmt.Sprintf("%s, rolldistance=%d", b.Info(), b.RollDistance)
 }
 
 func (b *Box) Write(src []byte) (int, error) {

@@ -3,6 +3,7 @@ package scanner
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"io"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
@@ -65,6 +66,10 @@ func (s *scanner) ScanFor(knownChildren children.Registry) (box.Boxed, error) {
 }
 
 func (s *scanner) ScanInfo(i *box.Info) error {
+	if i == nil {
+		return errors.New("i (*box.Info) cannot be nil")
+	}
+
 	off, err := s.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return err

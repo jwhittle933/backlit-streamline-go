@@ -57,6 +57,12 @@ func (r *Reader) Uint16() uint16 {
 	return res
 }
 
+func (r *Reader) Uint24() uint32 {
+	p1 := r.Uint8()
+	p2 := r.Uint16()
+	return (uint32(p1) << 16) + uint32(p2)
+}
+
 func (r *Reader) Uint32() uint32 {
 	if r.err != nil {
 		return 0
@@ -156,6 +162,29 @@ func (r *Reader) String(size int) string {
 	res := r.slice[r.pos : r.pos+size]
 	r.pos += size
 	return string(res)
+}
+
+func (r *Reader) NullTermString() string {
+	startPos := r.pos
+	for {
+		c := r.slice[r.pos]
+		if c == 0 {
+			if startPos == r.pos {
+				r.pos++
+				return ""
+			}
+
+			str := string(r.slice[startPos:r.pos])
+			r.pos++
+			return str
+		}
+
+		r.pos++
+		if r.pos >= len(r.slice) {
+			r.err = io.EOF
+			return ""
+		}
+	}
 }
 
 func (r *Reader) Length() int {

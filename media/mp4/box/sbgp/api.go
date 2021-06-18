@@ -3,9 +3,10 @@ package sbgp
 
 import (
 	"fmt"
+
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -13,9 +14,7 @@ const (
 )
 
 type Box struct {
-	base.Box
-	Version                 byte
-	Flags                   uint32
+	fullbox.Box
 	EntryCount              uint32
 	GroupingType            string
 	GroupingTypeParameter   uint32
@@ -30,9 +29,7 @@ type Entry struct {
 
 func New(i *box.Info) box.Boxed {
 	return &Box{
-		base.Box{BoxInfo: i},
-		0,
-		0,
+		*fullbox.New(i),
 		0,
 		"",
 		0,
@@ -42,7 +39,17 @@ func New(i *box.Info) box.Boxed {
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf("%s", b.Info())
+	return fmt.Sprintf(
+		"%s, version=%d, flags=%d, entries=%d, grouping=%s, groupingtypeparam=%d, samplecounts=%+v, groupdescindices=%+v",
+		b.Info(),
+		b.Version,
+		b.Flags,
+		b.EntryCount,
+		b.GroupingType,
+		b.GroupingTypeParameter,
+		b.SampleCounts,
+		b.GroupDescriptionIndices,
+	)
 }
 
 func (Box) Type() string {
@@ -52,9 +59,7 @@ func (Box) Type() string {
 func (b *Box) Write(src []byte) (int, error) {
 	sr := slicereader.New(src)
 
-	versionAndFlags := sr.Uint32()
-	b.Version = byte(versionAndFlags >> 24)
-	b.Flags = versionAndFlags & box.FlagsMask
+	b.WriteVersionAndFlags(sr)
 	b.GroupingType = sr.String(4)
 
 	b.EntryCount = sr.Uint32()

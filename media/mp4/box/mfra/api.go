@@ -2,10 +2,15 @@
 package mfra
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/box/mfra/mfro"
+
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/mfra/tfra"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 )
 
 const (
@@ -13,12 +18,19 @@ const (
 )
 
 var (
-	Children children.Registry
+	Children = children.Registry{
+		tfra.TFRA: tfra.New,
+		mfro.MFRO: mfro.New,
+	}
 )
 
 type Box struct {
 	base.Box
 	Children []box.Boxed
+}
+
+func New(i *box.Info) box.Boxed {
+	return &Box{base.Box{BoxInfo: i}, make([]box.Boxed, 0)}
 }
 
 func (Box) Type() string {
@@ -36,5 +48,13 @@ func (b Box) String() string {
 }
 
 func (b *Box) Write(src []byte) (int, error) {
+	s := scanner.New(bytes.NewReader(src))
+
+	var err error
+	b.Children, err = s.ScanAllChildren(Children)
+	if err != nil {
+		return 0, err
+	}
+
 	return box.FullRead(len(src))
 }

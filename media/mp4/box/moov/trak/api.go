@@ -5,7 +5,6 @@ package trak
 import (
 	"bytes"
 	"fmt"
-	udta2 "github.com/jwhittle933/streamline/media/mp4/box/udta"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
@@ -14,6 +13,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/tkhd"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/box/udta"
 )
 
 const (
@@ -21,10 +21,10 @@ const (
 )
 
 var Children = children.Registry{
-	tkhd.TKHD:  tkhd.New,
-	edts.EDTS:  edts.New,
-	mdia.MDIA:  mdia.New,
-	udta2.UDTA: udta2.New,
+	tkhd.TKHD: tkhd.New,
+	edts.EDTS: edts.New,
+	mdia.MDIA: mdia.New,
+	udta.UDTA: udta.New,
 }
 
 type Box struct {
