@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	ILST     string = "ilst"
+	ILST string = "ilst"
 	Dash string = "----"
-	ART string = "aART"
+	ART  string = "aART"
 	AkID string = "akID"
 	ApID string = "apID"
 	AtID string = "atID"

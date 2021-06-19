@@ -1,10 +1,12 @@
 package result
 
 type Binder func(data interface{}) Result
+type Tee func(data interface{})
 
 // Result represents a system operation that can succeed or fail
 type Result interface {
 	Bind(b Binder) Result
+	Tee(t Tee) Result
 	BindAll(bs ...Binder) Result
 	Ok() interface{}
 	IsOk() bool
@@ -32,10 +34,15 @@ func (o Ok) Bind(b Binder) Result {
 func (o Ok) BindAll(bs ...Binder) Result {
 	var out Result
 	for _, b := range bs {
-		out = b(o)
+		out = b(o.data)
 	}
 
 	return out
+}
+
+func (o Ok) Tee(t Tee) Result {
+	t(o.data)
+	return o
 }
 
 func (o Ok) Ok() interface{} {
@@ -58,11 +65,15 @@ type Err struct {
 	err error
 }
 
-func (e Err) Bind(b Binder) Result {
+func (e Err) Bind(Binder) Result {
 	return e
 }
 
-func (e Err) BindAll(bs ...Binder) Result {
+func (e Err) BindAll(...Binder) Result {
+	return e
+}
+
+func (e Err) Tee(Tee) Result {
 	return e
 }
 
@@ -82,8 +93,6 @@ func (e Err) IsErr() bool {
 	return true
 }
 
-type PipelineFn func(r Result) Result
-
-func Pipeline(r Result, bs ...Binder) Result {
+func Pipe(r Result, bs ...Binder) Result {
 	return r.BindAll(bs...)
 }

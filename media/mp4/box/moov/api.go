@@ -24,13 +24,13 @@ const (
 
 var (
 	Children = children.Registry{
-		coin.COIN:  coin.New,
-		free.FREE:  free.New,
-		meta.META:  meta.New,
-		mvex.MVEX:  mvex.New,
-		mvhd.MVHD:  mvhd.New,
-		pssh.PSSH:  pssh.New,
-		trak.TRAK:  trak.New,
+		coin.COIN: coin.New,
+		free.FREE: free.New,
+		meta.META: meta.New,
+		mvex.MVEX: mvex.New,
+		mvhd.MVHD: mvhd.New,
+		pssh.PSSH: pssh.New,
+		trak.TRAK: trak.New,
 		udta.UDTA: udta.New,
 	}
 )

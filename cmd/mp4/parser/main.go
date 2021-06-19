@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/jwhittle933/streamline/media/mp4"
+	"github.com/jwhittle933/streamline/result"
 )
 
 func main() {
@@ -17,32 +17,44 @@ func main() {
 		exitOnError(fmt.Errorf("no file provided. Exiting"), 0)
 	}
 
-	p, err := filepath.Abs(*inputFile)
-	exitOnError(err, 0)
+	result.Pipe(
+		mp4.Open(*inputFile),
+		exitOnDump(*dump),
+		read(),
+		printMP4(),
+	)
+}
 
-	if ext := filepath.Ext(p); ext == "" {
-		exitOnError(
-			fmt.Errorf("Invalid file ext \"%s\"\nExiting...\n", *inputFile),
-			0,
-		)
+func read() result.Binder {
+	return func(data interface{}) result.Result {
+		if err := data.(*mp4.MP4).ReadAll(); err != nil {
+			return result.WrapErr(err)
+		}
+
+		return result.Wrap(data)
 	}
+}
 
-	file, err := os.Open(p)
-	exitOnError(err, 1)
-	defer file.Close()
+func exitOnDump(shouldDump bool) result.Binder {
+	return func(data interface{}) result.Result {
+		if shouldDump {
+			fmt.Println(data.(*mp4.MP4).Hex())
+			os.Exit(0)
+		}
 
-	m, err := mp4.New(file)
-	exitOnError(err, 1)
-
-	if *dump {
-		fmt.Println(m.Hex())
-		return
+		return result.Wrap(data)
 	}
+}
 
-	exitOnError(m.ReadAll(), 1)
-	fmt.Printf("[\033[1;35mmp4\033[0m] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
-	for _, b := range m.Boxes {
-		fmt.Println(b)
+func printMP4() result.Binder {
+	return func(data interface{}) result.Result {
+		m := data.(*mp4.MP4)
+		fmt.Printf("[\033[1;35mmp4\033[0m] size=%d, fragmented=%+v, boxes=%d\n", m.Size, m.IsFragmented(), len(m.Children))
+
+		for _, c := range m.Children {
+			fmt.Println(c)
+		}
+		return result.Wrap(data)
 	}
 }
 

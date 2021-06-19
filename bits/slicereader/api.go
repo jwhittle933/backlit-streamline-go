@@ -262,7 +262,7 @@ func (r *Reader) ReadAt(p []byte, off int64) (int, error) {
 		return 0, err
 	}
 
-	if  _, err := r.Read(p); err != nil {
+	if _, err := r.Read(p); err != nil {
 		return 0, err
 	}
 

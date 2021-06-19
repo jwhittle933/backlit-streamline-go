@@ -56,7 +56,7 @@ func (b *Box) Write(src []byte) (int, error) {
 
 	if b.IsProtected == 1 && b.PerSampleIVSize == 0 {
 		constantIVSize := int(sr.Uint8())
-		b.ConstantIV =  sr.Slice(constantIVSize)
+		b.ConstantIV = sr.Slice(constantIVSize)
 	}
 
 	return box.FullRead(len(src))

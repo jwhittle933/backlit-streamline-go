@@ -45,7 +45,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.Flags = versionAndFlags & box.FlagsMask
 
 	if b.Flags&SelfContained > 0 {
-		b.Location = sr.String(sr.Length()-1)
+		b.Location = sr.String(sr.Length() - 1)
 	}
 
 	return len(src), nil

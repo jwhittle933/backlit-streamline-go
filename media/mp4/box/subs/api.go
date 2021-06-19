@@ -52,7 +52,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	for i := 0; i < len(b.Entries); i++ {
 		e := Entry{SampleData: sr.Uint32(), Samples: make([]Sample, sr.Uint16())}
 
-		for j := 0 ; j < len(e.Samples); j++ {
+		for j := 0; j < len(e.Samples); j++ {
 			s := Sample{}
 			if b.Version == 1 {
 				s.Size = sr.Uint32()

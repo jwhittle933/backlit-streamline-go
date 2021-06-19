@@ -22,4 +22,3 @@ func ScanEntry(name string, src []byte, factoryFn box.Factory) (Sample, error) {
 
 	return b, nil
 }
-

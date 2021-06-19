@@ -10,7 +10,10 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/avcC"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/btrt"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/chrm"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/clap"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/colr"
+	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/fiel"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/hvcC"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/pasp"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
@@ -19,9 +22,12 @@ import (
 var (
 	Children = children.Registry{
 		avcC.AVCC: avcC.New,
-		hvcC.HVCC: hvcC.New,
 		btrt.BTRT: btrt.New,
+		chrm.CHRM: chrm.New,
 		clap.CLAP: clap.New,
+		colr.COLR: colr.New,
+		fiel.FIEL: fiel.New,
+		hvcC.HVCC: hvcC.New,
 		pasp.PASP: pasp.New,
 	}
 )

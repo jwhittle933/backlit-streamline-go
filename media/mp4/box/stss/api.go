@@ -47,7 +47,7 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.SampleNumber = make([]uint32, b.SampleCount)
 
 	for i := uint32(0); i < b.SampleCount; i++ {
-		b.SampleNumber[i] = binary.BigEndian.Uint32(src[(8+4*i):(12+4*i)])
+		b.SampleNumber[i] = binary.BigEndian.Uint32(src[(8 + 4*i):(12 + 4*i)])
 	}
 
 	return box.FullRead(len(src))

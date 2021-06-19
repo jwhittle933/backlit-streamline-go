@@ -3,15 +3,15 @@ package stsd
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 
+	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/audio"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -25,22 +25,19 @@ var (
 		"hev1": visual.New,
 		"hvc1": visual.New,
 		"mp4a": audio.New,
+		//"c608": audio.New,
 	}
 )
 
 type Box struct {
-	base.Box
-	Version     uint8
-	Flags       uint32
+	fullbox.Box
 	SampleCount uint32
 	Children    []box.Boxed
 }
 
 func New(i *box.Info) box.Boxed {
 	return &Box{
-		base.Box{BoxInfo: i},
-		0,
-		0,
+		*fullbox.New(i),
 		0,
 		make([]box.Boxed, 0),
 	}
@@ -66,13 +63,16 @@ func (b *Box) String() string {
 }
 
 func (b *Box) Write(src []byte) (int, error) {
-	b.Version = src[0]
-	b.Flags = binary.BigEndian.Uint32([]byte{0x00, src[1], src[2], src[3]})
-	b.SampleCount = binary.BigEndian.Uint32(src[4:8])
+	sr := slicereader.New(src)
+	b.WriteVersionAndFlags(sr)
+	b.SampleCount = sr.Uint32()
 
-	s := scanner.New(bytes.NewReader(src[8:]))
-	found, err := s.ScanAllChildren(Children)
-	b.Children = found
+	s := scanner.New(bytes.NewReader(sr.Remaining()))
+	var err error
+	b.Children, err = s.ScanAllChildren(Children)
+	if err != nil {
+		return 0, err
+	}
 
-	return len(src), err
+	return box.FullRead(len(src))
 }

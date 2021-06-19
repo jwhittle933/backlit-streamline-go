@@ -3,56 +3,72 @@ package mp4
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
-	"github.com/jwhittle933/streamline/media/mp4/box/emsg"
-	"github.com/jwhittle933/streamline/media/mp4/box/mfra"
-	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"io"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/box/emsg"
 	"github.com/jwhittle933/streamline/media/mp4/box/free"
 	"github.com/jwhittle933/streamline/media/mp4/box/ftyp"
 	"github.com/jwhittle933/streamline/media/mp4/box/mdat"
+	"github.com/jwhittle933/streamline/media/mp4/box/mfra"
 	"github.com/jwhittle933/streamline/media/mp4/box/moof"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov"
+	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
 	"github.com/jwhittle933/streamline/media/mp4/box/styp"
 	"github.com/jwhittle933/streamline/media/mp4/box/unknown"
+	"github.com/jwhittle933/streamline/result"
 )
 
 var Children = children.Registry{
+	emsg.EMSG: emsg.New,
+	free.FREE: free.New,
 	ftyp.FTYP: ftyp.New,
 	mdat.MDAT: mdat.New,
-	moov.MOOV: moov.New,
-	moof.MOOF: moof.New,
-	styp.STYP: styp.New,
-	free.FREE: free.New,
-	sidx.SIDX: sidx.New,
 	mfra.MFRA: mfra.New,
-	emsg.EMSG: emsg.New,
+	moof.MOOF: moof.New,
+	moov.MOOV: moov.New,
+	sidx.SIDX: sidx.New,
+	styp.STYP: styp.New,
 }
+
+var (
+	ErrorNotMP4 = errors.New("invalid file type")
+)
 
 type MP4 struct {
-	r     io.ReadSeeker
-	Size  uint64
-	Boxes []box.Boxed
+	r          io.ReadSeeker
+	Size       uint64      `json:"size"`
+	Children   []box.Boxed `json:"boxes"`
+	fragmented bool
 }
 
-func New(r io.ReadSeeker) (*MP4, error) {
-	//size, err := r.Seek(0, io.SeekEnd)
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//	return nil, err
-	//}
-	//
-	//off, err := r.Seek(0, io.SeekStart)
-	//if err != nil {
-	//	return nil, err
-	//}
+func New(r io.ReadSeeker) *MP4 {
+	return &MP4{r: r, Size: 0, Children: make([]box.Boxed, 0)}
+}
 
-	return &MP4{r: r, Size: 0, Boxes: make([]box.Boxed, 0)}, nil
+func Open(path string) result.Result {
+	p, err := filepath.Abs(path)
+	if err != nil {
+		return result.WrapErr(err)
+	}
+
+	if ext := filepath.Ext(p); ext != ".mp4" {
+		return result.WrapErr(ErrorNotMP4)
+	}
+
+	file, err := os.Open(p)
+	if err != nil {
+		return result.WrapErr(err)
+	}
+
+	return result.Wrap(New(file))
 }
 
 func (m *MP4) Offset() (int64, error) {
@@ -70,13 +86,24 @@ func (m *MP4) Seek(offset int64, whence int) (int64, error) {
 }
 
 func (m *MP4) String() string {
-	s := fmt.Sprintf("[\033[1;35mmp4\033[0m] size=%d, boxes=%d\n", m.Size, len(m.Boxes))
+	s := fmt.Sprintf("[\033[1;35mmp4\033[0m] size=%d, fragmented%+v, boxes=%d\n", m.Size, m.fragmented, len(m.Children))
 
-	for _, b := range m.Boxes {
+	for _, b := range m.Children {
 		s += fmt.Sprintf("%s", b)
 	}
 
 	return s
+}
+
+func (m *MP4) PipePrint() result.Binder {
+	return func(data interface{}) result.Result {
+		if m == nil {
+			return result.WrapErr(errors.New("mp4 is nil"))
+		}
+
+		fmt.Println(m)
+		return result.Wrap(data)
+	}
 }
 
 // JSON encodes mp4 to JSON representation
@@ -122,13 +149,18 @@ func (m *MP4) ReadNext() (box.Boxed, error) {
 // from the mp4's underlying reader, and passes
 // reading responsibility for each box's children
 // to the Box
-func (m *MP4) ReadAll() error {
+func ReadAll(m *MP4) error {
 	var b box.Boxed
 	var err error
 
 	for {
 		b, err = m.ReadNext()
 		if err == io.EOF {
+
+			for _, c := range m.Children {
+				m.Size += c.Info().Size
+			}
+
 			return nil
 		}
 
@@ -136,10 +168,23 @@ func (m *MP4) ReadAll() error {
 			break
 		}
 
-		m.Boxes = append(m.Boxes, b)
+		switch b.Info().Type.String() {
+		case "moof", "styp":
+			m.fragmented = true
+		}
+
+		m.Children = append(m.Children, b)
 	}
 
 	return err
+}
+
+// ReadAll iteratively reads every top-level Box
+// from the mp4's underlying reader, and passes
+// reading responsibility for each box's children
+// to the Box
+func (m *MP4) ReadAll() error {
+	return ReadAll(m)
 }
 
 // Valid returns the validity of the mp4
@@ -153,4 +198,8 @@ func (m *MP4) ReadAll() error {
 //    Movie Fragments are to be expected
 func (m *MP4) Valid() bool {
 	return true
+}
+
+func (m *MP4) IsFragmented() bool {
+	return m.fragmented
 }

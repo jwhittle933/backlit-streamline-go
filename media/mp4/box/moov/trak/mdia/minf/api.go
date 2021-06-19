@@ -9,6 +9,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/base"
 	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf"
+	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/nmhd"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/smhd"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/sthd"
@@ -23,6 +24,7 @@ const (
 var (
 	Children = children.Registry{
 		dinf.DINF: dinf.New,
+		nmhd.NMHD: nmhd.New,
 		smhd.SMHD: smhd.New,
 		stbl.STBL: stbl.New,
 		sthd.STHD: sthd.New,

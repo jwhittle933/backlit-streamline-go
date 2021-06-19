@@ -1,4 +1,4 @@
-package unknown
+package chrm
 
 import (
 	"fmt"
@@ -8,34 +8,28 @@ import (
 )
 
 const (
-	UNKNOWN = "unkn"
+	CHRM = "chrm"
 )
 
 type Box struct {
 	base.Box
-	Data []byte
+	raw []byte
 }
 
 func New(i *box.Info) box.Boxed {
-	return &Box{base.Box{BoxInfo: i}, []byte{}}
+	return &Box{base.Box{BoxInfo: i}, nil}
 }
 
 func (Box) Type() string {
-	return UNKNOWN
-}
-
-func (b *Box) Info() *box.Info {
-	return b.BoxInfo
+	return CHRM
 }
 
 func (b Box) String() string {
-	return fmt.Sprintf(
-		"%s \033[0;33munknown\033[0m",
-		b.Info(),
-	)
+	return fmt.Sprintf("%s", b.Info())
 }
 
-// Write satisfies the io.Writer interface
 func (b *Box) Write(src []byte) (int, error) {
-	return len(src), nil
+	b.raw = src
+	return box.FullRead(len(src))
 }
+

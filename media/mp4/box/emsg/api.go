@@ -61,10 +61,9 @@ func (b *Box) Write(src []byte) (int, error) {
 		b.PresentationTimeDelta = sr.Uint32()
 		b.EventDuration = sr.Uint32()
 		b.Id = sr.Uint32()
-	} else  {
+	} else {
 		return 0, fmt.Errorf("unknown version %d for emsg", b.Version)
 	}
-
 
 	return box.FullRead(len(src))
 }
