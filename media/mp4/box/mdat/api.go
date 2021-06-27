@@ -7,8 +7,8 @@ package mdat
 import (
 	"fmt"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (

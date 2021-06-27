@@ -1,10 +1,26 @@
 // Package media parses and validates media formats
 package media
 
-type Parser interface {
+import (
+	"io"
+)
+
+type ChildReader interface {
+	ReadChildren() []Box
 }
 
-// Open opens a media file for parsing
-func Open(path string) {
-	// do the thing
+type ChildWriter interface {
+	WriteChildren([]byte) (int, error)
+}
+
+type Box interface {
+	io.Reader
+	io.Writer
+	ChildReader
+	ChildWriter
+}
+
+type Reader interface {
+	ReadAll() error
+	ReadNext() (Box, error)
 }

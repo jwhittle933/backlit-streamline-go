@@ -4,13 +4,13 @@ package moof
 import (
 	"bytes"
 	"fmt"
-	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moof/mfhd"
+	"github.com/jwhittle933/streamline/media/mp4/box/moof/traf"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (

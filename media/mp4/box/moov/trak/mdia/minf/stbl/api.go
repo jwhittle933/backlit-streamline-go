@@ -5,9 +5,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/co64"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/ctts"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/stbl/stco"
@@ -22,6 +21,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/sgpd"
 	"github.com/jwhittle933/streamline/media/mp4/box/stss"
 	"github.com/jwhittle933/streamline/media/mp4/box/subs"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (

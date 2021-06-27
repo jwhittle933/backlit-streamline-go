@@ -5,9 +5,8 @@ import (
 	"fmt"
 
 	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/avcC"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/btrt"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/chrm"
@@ -17,6 +16,7 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/hvcC"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/visual/pasp"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 var (

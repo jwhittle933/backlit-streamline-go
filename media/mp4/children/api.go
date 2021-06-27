@@ -18,8 +18,8 @@ func (r Registry) Names() []string {
 }
 
 func (r Registry) Get(name string) box.Factory {
-	if fac, ok := r[name]; ok {
-		return fac
+	if f, ok := r[name]; ok {
+		return f
 	}
 
 	return unknown.New

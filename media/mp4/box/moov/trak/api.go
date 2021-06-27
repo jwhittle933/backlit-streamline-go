@@ -6,14 +6,14 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/edts"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/tkhd"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
 	"github.com/jwhittle933/streamline/media/mp4/box/udta"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (

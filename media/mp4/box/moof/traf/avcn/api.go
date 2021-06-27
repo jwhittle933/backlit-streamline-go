@@ -3,8 +3,8 @@ package avcn
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -13,12 +13,12 @@ const (
 
 // Box is ISOBMFF mdat box type
 type Box struct {
-	base2.Box
+	base.Box
 	Data []byte
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, []byte{}}
+	return &Box{base.Box{BoxInfo: i}, []byte{}}
 }
 
 func (Box) Type() string {

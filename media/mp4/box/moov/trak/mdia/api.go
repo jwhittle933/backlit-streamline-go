@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/hdlr"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/mdhd"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (

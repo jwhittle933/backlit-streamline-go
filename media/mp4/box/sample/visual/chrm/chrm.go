@@ -3,8 +3,8 @@ package chrm
 import (
 	"fmt"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -32,4 +32,3 @@ func (b *Box) Write(src []byte) (int, error) {
 	b.raw = src
 	return box.FullRead(len(src))
 }
-

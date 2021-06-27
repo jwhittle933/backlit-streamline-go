@@ -2,8 +2,8 @@ package hvcC
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 	hvc2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/hvc"
 )
 
@@ -12,12 +12,12 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	hvc2.DecoderConfig
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, hvc2.New()}
+	return &Box{base.Box{BoxInfo: i}, hvc2.New()}
 }
 
 func (b Box) String() string {

@@ -5,8 +5,8 @@ import (
 
 	"github.com/jwhittle933/streamline/bits"
 	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -20,8 +20,8 @@ type Box struct {
 	TransferCharacteristics uint16
 	MatrixCoefficients      uint16
 	FullRangeFlag           bool
-	RestrictedProfile   []byte
-	UnrestrictedProfile []byte
+	RestrictedProfile       []byte
+	UnrestrictedProfile     []byte
 }
 
 func New(i *box.Info) box.Boxed {

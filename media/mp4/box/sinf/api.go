@@ -2,12 +2,12 @@
 package sinf
 
 import (
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
-	children2 "github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sinf/frma"
 	"github.com/jwhittle933/streamline/media/mp4/box/sinf/schi"
 	"github.com/jwhittle933/streamline/media/mp4/box/sinf/schm"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (
@@ -15,7 +15,7 @@ const (
 )
 
 var (
-	Children = children2.Registry{
+	Children = children.Registry{
 		frma.FRMA: frma.New,
 		schi.SCHI: schi.New,
 		schm.SCHM: schm.New,
@@ -23,11 +23,11 @@ var (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}}
 }
 
 func (Box) Type() string {

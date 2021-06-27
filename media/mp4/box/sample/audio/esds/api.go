@@ -3,9 +3,10 @@ package esds
 import (
 	"errors"
 	"fmt"
+
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
+	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 
 const (
@@ -18,9 +19,7 @@ const (
 
 // Box is ES Descriptor Box
 type Box struct {
-	base.Box
-	Version               byte
-	Flags                 uint32
+	fullbox.Box
 	EsDescrTag            byte
 	EsID                  uint16
 	FlagsAndPriority      byte
@@ -40,9 +39,7 @@ type Box struct {
 // New returns a new zeroed Box
 func New(i *box.Info) box.Boxed {
 	return &Box{
-		base.Box{BoxInfo: i},
-		0,
-		0,
+		*fullbox.New(i),
 		0,
 		0,
 		0,
@@ -88,10 +85,8 @@ func (b *Box) String() string {
 
 func (b *Box) Write(src []byte) (int, error) {
 	sr := slicereader.New(src)
+	b.WriteVersionAndFlags(sr)
 
-	versionAndFlags := sr.Uint32()
-	b.Version = byte(versionAndFlags >> 24)
-	b.Flags = versionAndFlags & box.FlagsMask
 	b.EsDescrTag = sr.Uint8()
 
 	_, bytesRead := b.sizeOfInstance(sr)

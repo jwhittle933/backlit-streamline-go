@@ -3,8 +3,8 @@ package pssh
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -13,7 +13,7 @@ const (
 
 // Box is ISO BMFF pssh box type
 type Box struct {
-	base2.Box
+	base.Box
 	SystemID [16]byte
 	KIDCount uint32
 	KIDs     []KID
@@ -25,7 +25,7 @@ type KID [16]byte
 
 func New(i *box2.Info) box2.Boxed {
 	return &Box{
-		base2.Box{BoxInfo: i},
+		base.Box{BoxInfo: i},
 		[16]byte{},
 		0,
 		make([]KID, 0),

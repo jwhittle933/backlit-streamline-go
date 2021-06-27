@@ -2,8 +2,8 @@ package avcC
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 	avc2 "github.com/jwhittle933/streamline/media/mp4/box/sample/visual/avc"
 )
 
@@ -18,7 +18,7 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	avc2.DecoderConfig
 }
 
@@ -32,7 +32,7 @@ type NALUnit struct {
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, avc2.New()}
+	return &Box{base.Box{BoxInfo: i}, avc2.New()}
 }
 
 func (Box) Type() string {

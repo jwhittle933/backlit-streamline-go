@@ -2,7 +2,7 @@ package groupentry
 
 import (
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/boxtype"
+	"github.com/jwhittle933/streamline/media/mp4/boxtype"
 )
 
 // Sample Behaves like a box but has no header

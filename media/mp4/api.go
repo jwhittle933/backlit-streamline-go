@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/emsg"
 	"github.com/jwhittle933/streamline/media/mp4/box/free"
 	"github.com/jwhittle933/streamline/media/mp4/box/ftyp"
@@ -23,20 +22,23 @@ import (
 	"github.com/jwhittle933/streamline/media/mp4/box/sidx"
 	"github.com/jwhittle933/streamline/media/mp4/box/styp"
 	"github.com/jwhittle933/streamline/media/mp4/box/unknown"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 	"github.com/jwhittle933/streamline/result"
 )
 
-var Children = children.Registry{
-	emsg.EMSG: emsg.New,
-	free.FREE: free.New,
-	ftyp.FTYP: ftyp.New,
-	mdat.MDAT: mdat.New,
-	mfra.MFRA: mfra.New,
-	moof.MOOF: moof.New,
-	moov.MOOV: moov.New,
-	sidx.SIDX: sidx.New,
-	styp.STYP: styp.New,
-}
+var (
+	Children = children.Registry{
+		emsg.EMSG: emsg.New,
+		free.FREE: free.New,
+		ftyp.FTYP: ftyp.New,
+		mdat.MDAT: mdat.New,
+		mfra.MFRA: mfra.New,
+		moof.MOOF: moof.New,
+		moov.MOOV: moov.New,
+		sidx.SIDX: sidx.New,
+		styp.STYP: styp.New,
+	}
+)
 
 var (
 	ErrorNotMP4 = errors.New("invalid file type")
@@ -45,6 +47,15 @@ var (
 type MP4 struct {
 	r          io.ReadSeeker
 	Size       uint64      `json:"size"`
+	Emsg       *emsg.Box   `json:"emsg"`
+	Free       *free.Box   `json:"free"`
+	Ftyp       *ftyp.Box   `json:"ftyp"`
+	Mdat       *mdat.Box   `json:"mdat"`
+	Mfra       *mfra.Box   `json:"mfra"`
+	Moof       *moof.Box   `json:"moof"`
+	Moov       *moov.Box   `json:"moov"`
+	Sidx       *sidx.Box   `json:"sidx"`
+	Styp       *styp.Box   `json:"styp"`
 	Children   []box.Boxed `json:"boxes"`
 	fragmented bool
 }
@@ -95,17 +106,6 @@ func (m *MP4) String() string {
 	return s
 }
 
-func (m *MP4) PipePrint() result.Binder {
-	return func(data interface{}) result.Result {
-		if m == nil {
-			return result.WrapErr(errors.New("mp4 is nil"))
-		}
-
-		fmt.Println(m)
-		return result.Wrap(data)
-	}
-}
-
 // JSON encodes mp4 to JSON representation
 func (m *MP4) JSON() string {
 	return "(*MP4).JSON() unimplemented"
@@ -142,6 +142,7 @@ func (m *MP4) ReadNext() (box.Boxed, error) {
 		return nil, err
 	}
 
+	m.AddBox(b)
 	return b, nil
 }
 
@@ -185,6 +186,29 @@ func ReadAll(m *MP4) error {
 // to the Box
 func (m *MP4) ReadAll() error {
 	return ReadAll(m)
+}
+
+func (m *MP4) AddBox(b box.Boxed) {
+	switch b.Info().Type.String() {
+	case "emsg":
+		m.Emsg = b.(*emsg.Box)
+	case "free":
+		m.Free = b.(*free.Box)
+	case "ftyp":
+		m.Ftyp = b.(*ftyp.Box)
+	case "mdat":
+		m.Mdat = b.(*mdat.Box)
+	case "mfra":
+		m.Mfra = b.(*mfra.Box)
+	case "moof":
+		m.Moof = b.(*moof.Box)
+	case "moov":
+		m.Moov = b.(*moov.Box)
+	case "sidx":
+		m.Sidx = b.(*sidx.Box)
+	case "styp":
+		m.Styp = b.(*styp.Box)
+	}
 }
 
 // Valid returns the validity of the mp4

@@ -68,7 +68,12 @@ func (b Box) String() string {
 		len(b.Samples),
 	)
 
-	for _, sa := range b.Samples {
+	for i, sa := range b.Samples {
+		if i > 5 {
+			s += fmt.Sprintf("\n      ... (%d more)", len(b.Samples)-5)
+			break
+		}
+
 		s += fmt.Sprintf("\n      %s", sa)
 	}
 

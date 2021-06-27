@@ -2,8 +2,8 @@
 package schm
 
 import (
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -11,14 +11,14 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	SchemeType    [4]byte
 	SchemeVersion uint32
 	SchemeUri     []byte
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, [4]byte{}, 0, make([]byte, 0)}
+	return &Box{base.Box{BoxInfo: i}, [4]byte{}, 0, make([]byte, 0)}
 }
 
 func (Box) Type() string {

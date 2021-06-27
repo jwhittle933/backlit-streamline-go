@@ -7,8 +7,8 @@ import (
 	"io"
 
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/boxtype"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
+	"github.com/jwhittle933/streamline/media/mp4/boxtype"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 type Scanner interface {

@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/alst"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/rap"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/roll"
 	"github.com/jwhittle933/streamline/media/mp4/box/sample/groupentry/seig"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 )
 
 const (

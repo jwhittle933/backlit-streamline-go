@@ -2,8 +2,8 @@ package cdat
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -11,12 +11,12 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	Data []byte
 }
 
 func New(i *box2.Info) *Box {
-	return &Box{base2.Box{BoxInfo: i}, make([]byte, 0, 0)}
+	return &Box{base.Box{BoxInfo: i}, make([]byte, 0, 0)}
 }
 
 func (b Box) String() string {

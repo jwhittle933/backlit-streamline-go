@@ -3,8 +3,8 @@ package xml
 
 import (
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -12,11 +12,11 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}}
+	return &Box{base.Box{BoxInfo: i}}
 }
 
 func (Box) Type() string {

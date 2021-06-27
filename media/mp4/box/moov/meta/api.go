@@ -7,10 +7,10 @@ import (
 
 	"github.com/jwhittle933/streamline/bits/slicereader"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/ilst"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/hdlr"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 	"github.com/jwhittle933/streamline/media/mp4/fullbox"
 )
 

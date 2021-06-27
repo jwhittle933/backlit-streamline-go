@@ -2,8 +2,8 @@
 package vmhd
 
 import (
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -11,13 +11,13 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	GraphicsMode uint16
 	OpColor      [3]uint16
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, 0, [3]uint16{}}
+	return &Box{base.Box{BoxInfo: i}, 0, [3]uint16{}}
 }
 
 func (Box) Type() string {

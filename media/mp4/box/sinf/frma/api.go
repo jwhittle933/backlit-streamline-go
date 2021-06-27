@@ -2,8 +2,8 @@
 package frma
 
 import (
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -12,12 +12,12 @@ const (
 
 // Box is ISOBMFF frma box type
 type Box struct {
-	base2.Box
+	base.Box
 	DataFormat [4]byte
 }
 
 func New(i *box2.Info) box2.Boxed {
-	return &Box{base2.Box{BoxInfo: i}, [4]byte{}}
+	return &Box{base.Box{BoxInfo: i}, [4]byte{}}
 }
 
 func (Box) Type() string {

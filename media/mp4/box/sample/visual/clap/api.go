@@ -3,8 +3,8 @@ package clap
 import (
 	"fmt"
 	slicereader2 "github.com/jwhittle933/streamline/bits/slicereader"
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	box2 "github.com/jwhittle933/streamline/media/mp4/box"
-	base2 "github.com/jwhittle933/streamline/media/mp4/box/base"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 )
 
 type Box struct {
-	base2.Box
+	base.Box
 	CleanApertureWidthN  uint32
 	CleanApertureWidthD  uint32
 	CleanApertureHeightN uint32
@@ -25,7 +25,7 @@ type Box struct {
 
 func New(i *box2.Info) box2.Boxed {
 	return &Box{
-		base2.Box{BoxInfo: i},
+		base.Box{BoxInfo: i},
 		0,
 		0,
 		0,

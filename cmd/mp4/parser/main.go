@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -22,7 +23,15 @@ func main() {
 		exitOnDump(*dump),
 		read(),
 		printMP4(),
+		//JSON,
 	)
+}
+
+func JSON(data interface{}) result.Result {
+	b, _ := json.MarshalIndent(data.(*mp4.MP4), "", "  ")
+	fmt.Println(string(b))
+
+	return result.Wrap(data)
 }
 
 func read() result.Binder {

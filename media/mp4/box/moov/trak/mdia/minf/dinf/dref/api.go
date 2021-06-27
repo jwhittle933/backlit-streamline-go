@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/jwhittle933/streamline/media/mp4/children"
 
+	"github.com/jwhittle933/streamline/media/mp4/base"
 	"github.com/jwhittle933/streamline/media/mp4/box"
-	"github.com/jwhittle933/streamline/media/mp4/box/base"
-	"github.com/jwhittle933/streamline/media/mp4/box/children"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/url"
 	"github.com/jwhittle933/streamline/media/mp4/box/moov/trak/mdia/minf/dinf/dref/urn"
 	"github.com/jwhittle933/streamline/media/mp4/box/scanner"
