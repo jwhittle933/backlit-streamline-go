@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/jonathanwhittle/Development/Backlit/backlit-streamline-go'
+go run ./cmd/mp4/parser/main.go --file "/Users/jonathanwhittle/Desktop/DadMusic/01FirstDayInHeaven.m4a"
+make: Leaving directory `/Users/jonathanwhittle/Development/Backlit/backlit-streamline-go'
+ 

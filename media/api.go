@@ -2,25 +2,43 @@
 package media
 
 import (
+	"fmt"
 	"io"
 )
 
-type ChildReader interface {
-	ReadChildren() []Box
-}
+type Codec int
 
-type ChildWriter interface {
-	WriteChildren([]byte) (int, error)
-}
+const (
+	Unknown Codec = iota
+	WAV
+	ALAC
+	FLAC
+	APE
+	OFR
+	TAK
+	WV
+	TTA
+	WMAL
 
-type Box interface {
-	io.Reader
-	io.Writer
-	ChildReader
-	ChildWriter
-}
+	MP3
+	M4A
+	M4B
+	M4P
+	AAC
+	OGG
+	WMA
+)
 
-type Reader interface {
+type Media interface {
+	Valid() bool
 	ReadAll() error
-	ReadNext() (Box, error)
+	Hex() string
+	JSON() string
+	Offset() (int64, error)
+	io.ReadSeeker
+	fmt.Stringer
+}
+
+func Open() {
+	//
 }

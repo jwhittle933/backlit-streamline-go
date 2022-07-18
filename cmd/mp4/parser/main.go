@@ -1,12 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
-	"github.com/jwhittle933/streamline/media/mp4"
+	"github.com/jwhittle933/streamline/media/mpeg"
 	"github.com/jwhittle933/streamline/result"
 )
 
@@ -18,25 +17,21 @@ func main() {
 		exitOnError(fmt.Errorf("no file provided. Exiting"), 0)
 	}
 
-	result.Pipe(
-		mp4.Open(*inputFile),
+	p := result.Pipe(
+		mpeg.Open(*inputFile),
 		exitOnDump(*dump),
 		read(),
 		printMP4(),
-		//JSON,
 	)
-}
 
-func JSON(data interface{}) result.Result {
-	b, _ := json.MarshalIndent(data.(*mp4.MP4), "", "  ")
-	fmt.Println(string(b))
-
-	return result.Wrap(data)
+	if p.IsErr() {
+		fmt.Println("Error: ", p.Err().Error())
+	}
 }
 
 func read() result.Binder {
 	return func(data interface{}) result.Result {
-		if err := data.(*mp4.MP4).ReadAll(); err != nil {
+		if err := data.(*mpeg.MPEG).ReadAll(); err != nil {
 			return result.WrapErr(err)
 		}
 
@@ -47,7 +42,7 @@ func read() result.Binder {
 func exitOnDump(shouldDump bool) result.Binder {
 	return func(data interface{}) result.Result {
 		if shouldDump {
-			fmt.Println(data.(*mp4.MP4).Hex())
+			fmt.Println(data.(*mpeg.MPEG).Hex())
 			os.Exit(0)
 		}
 
@@ -57,12 +52,8 @@ func exitOnDump(shouldDump bool) result.Binder {
 
 func printMP4() result.Binder {
 	return func(data interface{}) result.Result {
-		m := data.(*mp4.MP4)
-		fmt.Printf("[\033[1;35mmp4\033[0m] size=%d, fragmented=%+v, boxes=%d\n", m.Size, m.IsFragmented(), len(m.Children))
-
-		for _, c := range m.Children {
-			fmt.Println(c)
-		}
+		m := data.(*mpeg.MPEG)
+		fmt.Printf("%s\n", m)
 		return result.Wrap(data)
 	}
 }
@@ -72,4 +63,14 @@ func exitOnError(err error, code int) {
 		fmt.Println("Error: ", err)
 		os.Exit(code)
 	}
+}
+
+func sized(s int) string {
+	var out string
+
+	for s > 1024 {
+		//
+	}
+
+	return out
 }

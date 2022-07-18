@@ -69,6 +69,10 @@ func (e Err) Bind(Binder) Result {
 	return e
 }
 
+func (e Err) BindEither(_ Binder, errBind Binder) Result {
+	return errBind(e)
+}
+
 func (e Err) BindAll(...Binder) Result {
 	return e
 }

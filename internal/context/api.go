@@ -1,6 +1,6 @@
 package context
 
-import "github.com/jwhittle933/streamline/media/mp4/box"
+import "github.com/jwhittle933/streamline/media/mpeg/box"
 
 type Contexter interface {
 	Act()
